@@ -66,7 +66,9 @@ const person_num = ref(4);
 
 const runtimeConfig = useRuntimeConfig();
 const router = useRouter();
-const { userid, updateUserid } = useUserid()
+const { userid, updateUserid } = useUserid();
+const { gameid, updateGameid } = useGameid();
+
 
 const gameName = computed(() => {
   if(dobules_flg.value == true)
@@ -89,6 +91,9 @@ const mkgamedb = async() => {
               _dobules_flg, 
           })
     if (error) console.error(error)
-    else console.log(data)
+    else {
+         updateGameid(data);
+         router.push('/listgame');
+    }
 }
 </script>
