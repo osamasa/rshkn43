@@ -1,17 +1,25 @@
 <template>
     <h1>乱数表君設定</h1>
-    <div>{{displayname}}</div>
+    <div>
+    <v-btn @click="gostart">新規作成</v-btn>
+    </div>
+    <div>
+    <v-btn @click="recover">前回の続き</v-btn>
+    </div>    
+    <div>
     <v-btn @click="logout">ログアウト</v-btn>
+    </div>
 </template>
     
 <script setup>
 import liff from '@line/liff';
 
+const supabase = useSupabaseClient();
 const runtimeConfig = useRuntimeConfig();
 const router = useRouter();
-const displayname = ref('');
 const islogin = ref(false);
 const isClient = ref(false);
+const { userid, updateUserid } = useUserid()
 
 const myloginCheck = () => {
       // ログインチェック
@@ -20,11 +28,13 @@ const myloginCheck = () => {
         // プロフィール取得
         liff.getProfile()
               .then(profile => {
-                  console.log(profile.userId);
+                  updateUserid(profile.userId);
           })
           .catch((err) => {
             console.log('error', err);
           })
+      } else {
+          router.push('/');
       }
 };
 
@@ -41,6 +51,22 @@ const errorCallback = (err)=>{
 
 const logout = () => {
     liff.logout();
-    router.push('/');
 };
+
+const gostart = async () => {
+    const { data, error } = await supabase
+       .from('users')
+       .upsert({ loginid : userid.value })
+       .select()
+    router.push('/gostart');
+};
+
+const recover = async () => {
+let { data, error } = await supabase
+  .rpc('hello_world')
+
+if (error) console.error(error)
+else console.log(data)    
+};
+
 </script>
