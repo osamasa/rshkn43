@@ -8,6 +8,9 @@ export default defineNuxtConfig({
       liffId: process.env.LIFF_ID
     },
   },
+  supabase: {
+     redirect : false
+  },
   devtools: { enabled: true },
   build: {
       transpile: ['vuetify'],
