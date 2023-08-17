@@ -6,7 +6,7 @@
     <v-row>
       <v-col>
         <v-slider
-          v-model="coat_num"
+          v-model="v_coatnum"
           label="面数"
           min=1
           max=8
@@ -15,14 +15,14 @@
         </v-slider>
       </v-col>
       <v-col>
-        {{coat_num}}
+        {{v_coatnum}}
       </v-col>
       <v-spacer/>
     </v-row>  
     <v-row>
       <v-col>
         <v-slider
-          v-model="person_num"
+          v-model="v_person"
           label="人数"
           min=2
           max=12
@@ -31,14 +31,14 @@
         </v-slider>
       </v-col>
       <v-col>
-        {{person_num}}
+        {{v_person}}
       </v-col>
       <v-spacer/>
       </v-row>
       <v-row>
         <v-col>
           <v-switch
-            v-model="dobules_flg"
+            v-model="v_doblesflg"
             label="ゲーム形式"
             ></v-switch> 
         </v-col>
@@ -60,18 +60,23 @@
 </template>
 <script setup>
 const supabase = useSupabaseClient();    
-const dobules_flg = ref( true );
-const coat_num = ref(1);
-const person_num = ref(4);
 
 const runtimeConfig = useRuntimeConfig();
 const router = useRouter();
+
 const { userid, updateUserid } = useUserid();
 const { gameid, updateGameid } = useGameid();
+const { coatnum, updateCoatnum } = useCoatnum();
+const { person ,updatePerson} = usePerson();
+const { doblesflg ,updateDoblesflg} = useDoblesflg();
+
+const v_coatnum = ref(coatnum.value);
+const v_person = ref(person.value)
+const v_doblesflg = ref(doblesflg.value)
 
 
 const gameName = computed(() => {
-  if(dobules_flg.value == true)
+  if(v_doblesflg.value == true)
     return "ダブルス"
   else
     return "シングルス";
@@ -79,17 +84,20 @@ const gameName = computed(() => {
 
 const mkgamedb = async() => {
     let _userid = userid.value;
-    let _coat_num = coat_num.value;
-    let _dobules_flg = dobules_flg.value;
-    let _person_num = person_num.value
-
+    let _coat_num = v_coatnum.value;
+    let _dobules_flg = v_doblesflg.value;
+    let _person_num = v_person.value;
+    updateCoatnum(_coat_num);
+    updatePerson(_person_num);
+    updateDoblesflg(_dobules_flg);
+ 
     const { data, error } = await supabase
           .rpc('newmakenewgame', {
               _userid,
               _person_num,               
               _coat_num,
-              _dobules_flg, 
-          })
+              _dobules_flg
+        })
     if (error) console.error(error)
     else {
          updateGameid(data);

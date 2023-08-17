@@ -27,7 +27,6 @@ onMounted(() => {
 const gosetting = () => {
    if (!liff.isLoggedIn()) {
        liff.login('https://localhost:3000/setting')
-
    }
 }
 </script>
