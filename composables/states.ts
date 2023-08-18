@@ -64,7 +64,7 @@ export const useDoblesflg = () => {
 
 
     // stateの更新処理
-    const updateDoblesflg = (doblesflg: ref<numeric>) => (value: ref<numeric>) => {
+    const updateDoblesflg = (doblesflg: ref<boolean>) => (value: ref<boolean>) => {
        doblesflg.value = value;
     }
 

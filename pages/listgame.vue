@@ -1,8 +1,8 @@
 <template>
-  <div v-if="vtoggle==0">  
+  <div v-if="vtoggle==0">
     <v-container class="pa-0" v-for="game in games">
-      <v-row class="pl-2 pt-1 pb-1 bg-grey-lighten-2" no-gutters v-if="isOnajigame(game.game_no)>0">第{{isOnajigame(game.game_no)}}試合</v-row>
-        <v-row no-gutters>
+    <v-row class="pl-2 pt-1 pb-1 bg-grey-lighten-2" no-gutters v-if="isOnajigame(game.game_no)>0"><v-btn @click="changeCurGame(game.game_no);" variant="text">第{{isOnajigame(game.game_no)}}試合<v-spacer/></v-btn></v-row>
+        <v-row no-gutters :class="getCurColor(game.game_no)">
           <v-col class="ma-1"><v-btn block size="large" variant="outlined">{{game.player_1}}</v-btn></v-col>
           <v-col class="ma-1"><v-btn block size="large" variant="outlined">{{game.player_2}}</v-btn></v-col>
           <v-col cols="1">&nbsp;</v-col>
@@ -57,14 +57,16 @@
 </template>
 <script setup>
 const supabase = useSupabaseClient();
+
 const games = ref([]);
 const users = ref([]);
-
-const vtoggle = ref(1);
+const vtoggle = ref(0);
 const { gameid } = useGameid();
 const { coatnum } = useCoatnum();
 const { person } = usePerson();
 const { doblesflg } = useDoblesflg();
+
+const curgame = ref(1);
 
 const readsecond = async() => {
     let { data , error } = await supabase
@@ -116,6 +118,21 @@ const isOnajigame = computed(()=> (_no) => {
 const isLastOnajigame = computed(()=> (_no) => {
     let realcoatnum = calcRealCoatnum();
     return (_no-1) % realcoatnum == realcoatnum-1;
+});
+
+const getCurColor = computed(()=>(_game_no) => {
+    let realcoatnum = calcRealCoatnum();
+    if(((curgame.value-1) * realcoatnum < _game_no) && (curgame.value*realcoatnum+1 > _game_no)) {
+        return 'bg-grey-lighten-3';
+    } else {
+        return '';
+    }
+});
+
+const changeCurGame=((_no) => {
+    let realcoatnum = calcRealCoatnum();
+    let realshiainum = realcoatnum==1 ? _no : (Math.floor(_no / realcoatnum)+1);
+    curgame.value = realshiainum;
 });
 
 onMounted(() => {
