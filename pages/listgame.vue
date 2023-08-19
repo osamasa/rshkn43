@@ -3,14 +3,20 @@
     <v-container class="pa-0" v-for="game in games">
     <v-row @click="changeCurGame(game.game_no);" class="pl-2 pt-1 pb-1 bg-grey-lighten-2" no-gutters v-if="isOnajigame(game.game_no)>0">第{{isOnajigame(game.game_no)}}試合</v-row>
         <v-row no-gutters :class="getCurColor(game.game_no)">
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="useGameId=game.id;usePlayerPos=1;chPlayerNo=game.player_1;dlgFirstMenu=!dlgFirstMenu">{{game.player_1}}</v-btn></v-col>
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="useGameId=game.id;usePlayerPos=2;chPlayerNo=game.player_2;dlgFirstMenu=!dlgFirstMenu">{{game.player_2}}</v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=1;chPlayerNo=game.player_1;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2">{{game.player_1}}</v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=2;chPlayerNo=game.player_2;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2">{{game.player_2}}</v-btn></v-col>
           <v-col @click='changeCurGame(game.game_no);' cols="1">&nbsp;</v-col>
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="useGameId=game.id;usePlayerPos=3;chPlayerNo=game.player_3;dlgFirstMenu=!dlgFirstMenu">{{game.player_3}}</v-btn></v-col>
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="useGameId=game.id;usePlayerPos=1;chPlayerNo=game.player_4;dlgFirstMenu=!dlgFirstMenu">{{game.player_4}}</v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=3;chPlayerNo=game.player_3;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2">{{game.player_3}}</v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=1;chPlayerNo=game.player_4;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2">{{game.player_4}}</v-btn></v-col>
         </v-row>
-      <v-divider v-if="isLastOnajigame(game.game_no)"></v-divider>
+	<v-row @click="changeCurGame(game.game_no)" no-gutters :class="getCurColor(game.game_no)" v-if="!(game.score_1==0 && game.score_2==0)">
+	  <v-col class="text-center">{{ calcShouhai(game.score_1, game.score_2)}}{{ game.score_1 }}</v-col>
+	  <v-col class="text-center">{{ calcShouhai(game.score_2, game.score_1)}}{{ game.score_2 }}</v-col>	  
+	</v-row>	
     </v-container>
+    <v-row no-gutters>
+      <v-btn block class="ma-2" variant="elevated" color="success" @click="addplaydb()">ゲームを追加</v-btn>
+    </v-row>        
     <v-dialog
       v-model="dlgFirstMenu"
       width="auto"
@@ -22,23 +28,24 @@
         <v-card-text>
           <v-btn
 	    class="ma-2"
-	    @click="dlgFirstMenu=!dlgFirstMenu;dlgSecondMenu=!dlgSecondMenu"
+	    @click="dlgSecondMenu=!dlgSecondMenu"
+	    color="primary"
 	    block
             >
             プレイヤーを変更する
             </v-btn>
             <v-btn
-
               class="ma-2"
 	      block
-	      @click="dlgFirstMenu=!dlgFirstMenu;dlgThridMenu=!dlgThirdMenu"
+	      color="secondary"
+	      @click="dlgThridMenu=!dlgThridMenu"
             >
               得点を入力する
             </v-btn>	    
           </v-card-text>
           <v-card-actions>
             <v-btn
-              color="primary"
+              color="info"
               variant="text"
               @click="dlgFirstMenu = false"
             >
@@ -63,14 +70,15 @@
 	  <v-row>
 	    <v-col>
               <v-btn
-		variant="text"
+		color="success"
 		@click="updatePlayer();dlgSecondMenu = false"
 		>
-		更新
+		更新		
               </v-btn>
 	    </v-col>
 	    <v-col>
               <v-btn
+		color="info"		
 		variant="text"
 		@click="dlgSecondMenu = false"
 		>
@@ -81,7 +89,57 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    
+
+    <v-dialog
+      v-model="dlgThridMenu"
+      width="auto"
+      >
+      <v-card>
+        <v-card-title>
+          第{{ getCurShiainum() }}試合の得点入力
+        </v-card-title>
+        <v-card-text>
+	  <v-row>
+	    <v-col>
+	      {{ d_player_1 }},{{ d_player_2 }}
+	    </v-col>
+	    <v-col>&nbsp;VS&nbsp;</v-col>
+	    <v-col>
+	      {{ d_player_3 }},{{ d_player_4 }}
+	    </v-col>
+	  </v-row>
+	  <v-row>
+	    <v-col>
+	      <v-select density="compact" v-model="d_score_1" labele="得点" :items="[0,1,2,3,4,5,6,7,8,9,10]"></v-select>
+	    </v-col>
+	    <v-col>
+	      <v-select density="compact" v-model="d_score_2" labele="得点" :items="[0,1,2,3,4,5,6,7,8,9,10]"></v-select>
+	    </v-col>	    
+	  </v-row>	    
+        </v-card-text>
+        <v-card-actions>
+	  <v-row>
+	    <v-col>
+              <v-btn
+		color="success"
+		@click="updateGameScore();dlgThridMenu = false"
+		>
+		更新
+              </v-btn>
+	    </v-col>
+	    <v-col>
+              <v-btn
+		color="info"
+		@click="dlgThridMenu=false"
+		>
+		キャンセル
+              </v-btn>
+	    </v-col>
+	  </v-row>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </div>
   <div v-if="vtoggle==1">
     <v-container>
@@ -144,9 +202,17 @@ const coatnum = ref(0);
 const person = ref(0);
 const doblesflg = ref(false);
 const curgame = ref(0);
-const useGameId = ref(0);
+
 const usePlayerPos = ref(0);
 const chPlayerNo = ref(0);
+
+const d_gameid = ref(0);
+const d_player_1 = ref(0);
+const d_player_2 = ref(0);
+const d_player_3 = ref(0);
+const d_player_4 = ref(0);
+const d_score_1 = ref(0);
+const d_score_2 = ref(0);
 
 const readcurgame = async() => {
     let { data , error } = await supabase
@@ -218,10 +284,6 @@ const isOnajigame = computed(()=> (_no) => {
     return realcoatnum==1 ? _no : (_no-1) % realcoatnum == 0 ? (Math.floor(_no / realcoatnum)+1) : 0;
 })
 
-const isLastOnajigame = computed(()=> (_no) => {
-    let realcoatnum = calcRealCoatnum();
-    return (_no-1) % realcoatnum == realcoatnum-1;
-});
 
 const getCurColor = computed(()=>(_game_no) => {
     let realcoatnum = calcRealCoatnum();
@@ -233,12 +295,12 @@ const getCurColor = computed(()=>(_game_no) => {
 });
 
 const getCurUserNo = computed(()=>() => {
-    let pgame = games.value.filter((game) => {return(game.id === useGameId.value)});
+    let pgame = games.value.filter((game) => {return(game.id === d_gameid.value)});
     return pgame[0]['player_' + usePlayerPos.value];
 });
 
 const getCurShiainum = computed(()=>() => {
-    let pgame = games.value.filter((game) => {return(game.id === useGameId.value)});
+    let pgame = games.value.filter((game) => {return(game.id === d_gameid.value)});
     return calcRealshiaiNum(pgame[0].game_no);
 });
     
@@ -267,8 +329,12 @@ const getPlayearsList = computed(() =>() => {
     return nplayers;
 });
 
+const calcShouhai = computed(() =>(s1,s2) => {
+    return s1 == s2 ? '△' : s1 > s2 ? '◯' : '×';
+});    
+
 const updatePlayer = async() => {
-    let _rerodGameid = useGameId.value;
+    let _rerodGameid = d_gameid.value;
     let _playername = 'player_' + usePlayerPos.value;
     let newValue = chPlayerNo.value;
 
@@ -291,6 +357,64 @@ const updatePlayer = async() => {
 	games.value=result;
 	games.value.push(data[0]);
 	games.value.sort((a,b) => a.id - b.id);
+    }
+}
+
+const updateGameScore = async() => {
+    let _rerodGameid = d_gameid.value;
+
+    const { data, error } = await supabase
+          .from('game_record')
+          .update(
+	      {
+	      	  'modified_at' : 'now()',
+		  'score_1' : d_score_1.value,
+		  'score_2' : d_score_2.value
+	      }
+	  )
+          .eq('id', _rerodGameid )
+          .select()
+    if(error) {
+        console.log(error)
+    } else {
+	let result = games.value.filter((game) => {
+	    return game.id != _rerodGameid;
+	});
+	games.value=result;
+	games.value.push(data[0]);
+	games.value.sort((a,b) => a.id - b.id);
+    }
+}
+
+const addplaydb = async() => {
+    let _v_id = gameid.value;
+    let _coat_num = coatnum.value;
+    let _dobules_flg = doblesflg.value;
+    let _person_num = person.value;
+    let _last_no = games.value.length;
+
+    const { data, error } = await supabase
+          .rpc('addnewgames', {
+	      _v_id,
+              _person_num,               
+              _coat_num,
+              _dobules_flg,
+	      _last_no
+        });
+    if(error)
+       console.error(error)
+    else {
+        const { data, error } = await supabase
+    	      .from('game_record')
+	      .select('*')
+	      .eq('game_id',_v_id)
+	      .gt('game_no',_last_no)
+	if(error) {
+            console.log(error)
+	} else {
+	    games.value.push(...data);
+	    games.value.sort((a,b) => a.id - b.id);
+	}	
     }
 }
 
