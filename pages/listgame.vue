@@ -3,14 +3,85 @@
     <v-container class="pa-0" v-for="game in games">
     <v-row @click="changeCurGame(game.game_no);" class="pl-2 pt-1 pb-1 bg-grey-lighten-2" no-gutters v-if="isOnajigame(game.game_no)>0">第{{isOnajigame(game.game_no)}}試合</v-row>
         <v-row no-gutters :class="getCurColor(game.game_no)">
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined">{{game.player_1}}</v-btn></v-col>
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined">{{game.player_2}}</v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="useGameId=game.id;usePlayerPos=1;chPlayerNo=game.player_1;dlgFirstMenu=!dlgFirstMenu">{{game.player_1}}</v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="useGameId=game.id;usePlayerPos=2;chPlayerNo=game.player_2;dlgFirstMenu=!dlgFirstMenu">{{game.player_2}}</v-btn></v-col>
           <v-col @click='changeCurGame(game.game_no);' cols="1">&nbsp;</v-col>
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined">{{game.player_3}}</v-btn></v-col>
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined">{{game.player_4}}</v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="useGameId=game.id;usePlayerPos=3;chPlayerNo=game.player_3;dlgFirstMenu=!dlgFirstMenu">{{game.player_3}}</v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="useGameId=game.id;usePlayerPos=1;chPlayerNo=game.player_4;dlgFirstMenu=!dlgFirstMenu">{{game.player_4}}</v-btn></v-col>
         </v-row>
       <v-divider v-if="isLastOnajigame(game.game_no)"></v-divider>
     </v-container>
+    <v-dialog
+      v-model="dlgFirstMenu"
+      width="auto"
+      >
+      <v-card>
+        <v-card-title>
+          メニュー
+          </v-card-title>
+        <v-card-text>
+          <v-btn
+	    class="ma-2"
+	    @click="dlgFirstMenu=!dlgFirstMenu;dlgSecondMenu=!dlgSecondMenu"
+	    block
+            >
+            プレイヤーを変更する
+            </v-btn>
+            <v-btn
+
+              class="ma-2"
+	      block
+	      @click="dlgFirstMenu=!dlgFirstMenu;dlgThridMenu=!dlgThirdMenu"
+            >
+              得点を入力する
+            </v-btn>	    
+          </v-card-text>
+          <v-card-actions>
+            <v-btn
+              color="primary"
+              variant="text"
+              @click="dlgFirstMenu = false"
+            >
+              閉じる
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <v-dialog
+      v-model="dlgSecondMenu"
+      width="auto"
+      >
+      <v-card>
+        <v-card-title>
+        第{{ getCurShiainum() }}試合の{{ getCurUserNo() }}さんの変更
+        </v-card-title>
+        <v-card-text>
+        <v-select v-model="chPlayerNo" labele="プレイヤー番号" :items="getPlayearsList()"></v-select>
+        </v-card-text>
+	<v-card-actions>
+	  <v-row>
+	    <v-col>
+              <v-btn
+		variant="text"
+		@click="updatePlayer();dlgSecondMenu = false"
+		>
+		更新
+              </v-btn>
+	    </v-col>
+	    <v-col>
+              <v-btn
+		variant="text"
+		@click="dlgSecondMenu = false"
+		>
+		キャンセル
+              </v-btn>
+	    </v-col>
+	  </v-row>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    
   </div>
   <div v-if="vtoggle==1">
     <v-container>
@@ -66,10 +137,16 @@ const { gameid } = useGameid();
 const games = ref([]);
 const users = ref([]);
 const vtoggle = ref(0);
+const dlgFirstMenu = ref(false);
+const dlgSecondMenu = ref(false);
+const dlgThridMenu = ref(false);
 const coatnum = ref(0);
 const person = ref(0);
 const doblesflg = ref(false);
 const curgame = ref(0);
+const useGameId = ref(0);
+const usePlayerPos = ref(0);
+const chPlayerNo = ref(0);
 
 const readcurgame = async() => {
     let { data , error } = await supabase
@@ -78,7 +155,7 @@ const readcurgame = async() => {
        .eq('id',gameid.value);
     if(error) {
         console.log(error)
-    } else {
+} else {
         curgame.value = data[0].curgame;
         doblesflg.value = data[0].dobules_flg;
         person.value= data[0].player_num;
@@ -128,6 +205,14 @@ const calcRealCoatnum=() => {
     return realcoatnum;
 }
 
+const calcRealshiaiNum=((_no) => {
+    let realcoatnum = calcRealCoatnum();
+    let retv = realcoatnum==1 ? _no : (Math.ceil(_no / realcoatnum));
+
+    return retv;
+});
+
+
 const isOnajigame = computed(()=> (_no) => {
     let realcoatnum = calcRealCoatnum();
     return realcoatnum==1 ? _no : (_no-1) % realcoatnum == 0 ? (Math.floor(_no / realcoatnum)+1) : 0;
@@ -147,22 +232,67 @@ const getCurColor = computed(()=>(_game_no) => {
     }
 });
 
-const changeCurGame = (_no) => {
-    let realcoatnum = calcRealCoatnum();
-    let realshiainum = realcoatnum==1 ? _no : (Math.ceil(_no / realcoatnum));
+const getCurUserNo = computed(()=>() => {
+    let pgame = games.value.filter((game) => {return(game.id === useGameId.value)});
+    return pgame[0]['player_' + usePlayerPos.value];
+});
+
+const getCurShiainum = computed(()=>() => {
+    let pgame = games.value.filter((game) => {return(game.id === useGameId.value)});
+    return calcRealshiaiNum(pgame[0].game_no);
+});
+    
+const changeCurGame = async (_no) => {
+
+    let realshiainum = calcRealshiaiNum(_no);
     let _gameid = gameid.value;
     
     curgame.value = realshiainum;
-
-    const { data, error } =  supabase
+    
+    const { data, error } =  await supabase
           .from('games')
           .update({ 'curgame' : realshiainum ,
                    'modified_at' : 'now()'})
           .eq('id', _gameid)
+	  .select()
     if(error) {
         console.log(error)
     }
 };
+
+const getPlayearsList = computed(() =>() => {
+    let m=users.value.length;
+    let nplayers = [...Array(m)].map((_,i) => i + 1 );
+
+    return nplayers;
+});
+
+const updatePlayer = async() => {
+    let _rerodGameid = useGameId.value;
+    let _playername = 'player_' + usePlayerPos.value;
+    let newValue = chPlayerNo.value;
+
+    let updatedatas = {
+	'modified_at' : 'now()'
+    };
+    updatedatas[_playername]=newValue;
+    
+    const { data, error } = await supabase
+          .from('game_record')
+          .update(updatedatas)
+          .eq('id', _rerodGameid )
+          .select()
+    if(error) {
+        console.log(error)
+    } else {
+	let result = games.value.filter((game) => {
+	    return game.id != _rerodGameid;
+	});
+	games.value=result;
+	games.value.push(data[0]);
+	games.value.sort((a,b) => a.id - b.id);
+    }
+}
 
 onMounted(() => {
     readfirst();
