@@ -1,11 +1,11 @@
 <template>
   <div v-if="vtoggle==0">
     <v-container class="pa-0" v-for="game in games">
-    <v-row class="pl-2 pt-1 pb-1 bg-grey-lighten-2" no-gutters v-if="isOnajigame(game.game_no)>0"><v-btn @click="changeCurGame(game.game_no);" variant="text">第{{isOnajigame(game.game_no)}}試合<v-spacer/></v-btn></v-row>
+    <v-row @click="changeCurGame(game.game_no);" class="pl-2 pt-1 pb-1 bg-grey-lighten-2" no-gutters v-if="isOnajigame(game.game_no)>0">第{{isOnajigame(game.game_no)}}試合</v-row>
         <v-row no-gutters :class="getCurColor(game.game_no)">
           <v-col class="ma-1"><v-btn block size="large" variant="outlined">{{game.player_1}}</v-btn></v-col>
           <v-col class="ma-1"><v-btn block size="large" variant="outlined">{{game.player_2}}</v-btn></v-col>
-          <v-col cols="1">&nbsp;</v-col>
+          <v-col @click='changeCurGame(game.game_no);' cols="1">&nbsp;</v-col>
           <v-col class="ma-1"><v-btn block size="large" variant="outlined">{{game.player_3}}</v-btn></v-col>
           <v-col class="ma-1"><v-btn block size="large" variant="outlined">{{game.player_4}}</v-btn></v-col>
         </v-row>
@@ -57,16 +57,30 @@
 </template>
 <script setup>
 const supabase = useSupabaseClient();
+const { gameid } = useGameid();
 
 const games = ref([]);
 const users = ref([]);
 const vtoggle = ref(0);
-const { gameid } = useGameid();
-const { coatnum } = useCoatnum();
-const { person } = usePerson();
-const { doblesflg } = useDoblesflg();
+const coatnum = ref(0);
+const person = ref(0);
+const doblesflg = ref(false);
+const curgame = ref(0);
 
-const curgame = ref(1);
+const readcurgame = async() => {
+    let { data , error } = await supabase
+       .from('games')
+        .select('curgame,player_num,coat_num,dobules_flg')
+       .eq('id',gameid.value);
+    if(error) {
+        console.log(error)
+    } else {
+        curgame.value = data[0].curgame;
+        doblesflg.value = data[0].dobules_flg;
+        person.value= data[0].player_num;
+        coatnum.value = data[0].coat_num;
+    }
+}
 
 const readsecond = async() => {
     let { data , error } = await supabase
@@ -123,28 +137,43 @@ const isLastOnajigame = computed(()=> (_no) => {
 const getCurColor = computed(()=>(_game_no) => {
     let realcoatnum = calcRealCoatnum();
     if(((curgame.value-1) * realcoatnum < _game_no) && (curgame.value*realcoatnum+1 > _game_no)) {
-        return 'bg-grey-lighten-3';
+        return 'bg-brown-lighten-3';
     } else {
         return '';
     }
 });
 
-const changeCurGame=((_no) => {
+const changeCurGame = (_no) => {
     let realcoatnum = calcRealCoatnum();
-    let realshiainum = realcoatnum==1 ? _no : (Math.floor(_no / realcoatnum)+1);
+    let realshiainum = realcoatnum==1 ? _no : (Math.ceil(_no / realcoatnum));
+    let _gameid = gameid.value;
+    
     curgame.value = realshiainum;
-});
+
+    const { data, error } =  supabase
+          .from('games')
+          .update({ 'curgame' : realshiainum ,
+                   'modified_at' : 'now()'})
+          .eq('id', _gameid)
+    if(error) {
+        console.log(error)
+    }
+};
 
 onMounted(() => {
     readfirst();
     readsecond();
+    readcurgame();
     let gameRecord = supabase.channel('custom-all-channel')
         .on(
             'postgres_changes',
-            { event: '*', schema: 'public', table: 'game_record,game_user' },
+            { event: '*', schema: 'public', table: 'games,game_record,game_user' },
             (payload) => {
-                console.log('Change received!', payload)
-                if((payload.table === 'game_record') && (payload.eventType === 'INSERT')) {
+                if((payload.table === 'games') && (payload.eventType === 'UPDATE')) {
+                    if(payload.new.game_id === gameid.value) {
+                        curgame.value = payload.new.curgame;
+                    }
+                } else if((payload.table === 'game_record') && (payload.eventType === 'INSERT')) {
                     if(payload.new.game_id === gameid.value) {
                         games.value.push(payload.new);
                     }

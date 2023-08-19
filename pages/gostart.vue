@@ -66,9 +66,6 @@ const router = useRouter();
 
 const { userid, updateUserid } = useUserid();
 const { gameid, updateGameid } = useGameid();
-const { coatnum, updateCoatnum } = useCoatnum();
-const { person ,updatePerson} = usePerson();
-const { doblesflg ,updateDoblesflg} = useDoblesflg();
 
 const v_coatnum = ref(coatnum.value);
 const v_person = ref(person.value)
@@ -87,9 +84,6 @@ const mkgamedb = async() => {
     let _coat_num = v_coatnum.value;
     let _dobules_flg = v_doblesflg.value;
     let _person_num = v_person.value;
-    updateCoatnum(_coat_num);
-    updatePerson(_person_num);
-    updateDoblesflg(_dobules_flg);
  
     const { data, error } = await supabase
           .rpc('newmakenewgame', {
