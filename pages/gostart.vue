@@ -67,9 +67,9 @@ const router = useRouter();
 const { userid, updateUserid } = useUserid();
 const { gameid, updateGameid } = useGameid();
 
-const v_coatnum = ref(coatnum.value);
-const v_person = ref(person.value)
-const v_doblesflg = ref(doblesflg.value)
+const v_coatnum = ref(1);
+const v_person = ref(6);
+const v_doblesflg = ref(true);
 
 
 const gameName = computed(() => {

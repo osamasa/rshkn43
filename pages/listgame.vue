@@ -52,6 +52,10 @@
         <v-icon>mdi-table-clock</v-icon>
         <span>結果</span>
       </v-btn>
+      <v-btn>
+        <v-icon>mdi-share-variant</v-icon>
+        <span>共有</span>
+      </v-btn>      
     </v-bottom-navigation>
   </v-layout>
 </template>
@@ -137,7 +141,7 @@ const isLastOnajigame = computed(()=> (_no) => {
 const getCurColor = computed(()=>(_game_no) => {
     let realcoatnum = calcRealCoatnum();
     if(((curgame.value-1) * realcoatnum < _game_no) && (curgame.value*realcoatnum+1 > _game_no)) {
-        return 'bg-brown-lighten-3';
+        return 'bg-yellow-lighten-4';
     } else {
         return '';
     }
