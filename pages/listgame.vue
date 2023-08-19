@@ -54,7 +54,6 @@
           </v-card-actions>
         </v-card>
     </v-dialog>
-
     <v-dialog
       v-model="dlgSecondMenu"
       width="auto"
@@ -89,7 +88,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
     <v-dialog
       v-model="dlgThridMenu"
       width="auto"
@@ -139,29 +137,9 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
   </div>
   <div v-if="vtoggle==1">
-    <v-container>
-      <v-row class="bg-grey-lighten-2 mb-5" >
-        <v-col cols="1">No</v-col>
-        <v-col>お名前</v-col>
-      </v-row>
-      <v-row  v-for="user in users" no-gutters>
-        <v-col cols="1">{{user.player_no}}</v-col>
-        <v-col>
-          <v-text-field v-model="user.player_name" label="お名前" clearable></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-btn block>更新</v-btn>
-        </v-col>
-        <v-col>
-          <v-btn block>キャンセル</v-btn>          
-        </v-col>
-      </v-row>
-    </v-container>
+    <ListGameUsers :users-list="users" @update-game-sers="doUpdateGameUsers"/>
   </div>
   <v-layout class="overflow-visible" style="height: 56px;">
     <v-bottom-navigation
@@ -392,7 +370,7 @@ const addplaydb = async() => {
     let _dobules_flg = doblesflg.value;
     let _person_num = person.value;
     let _last_no = games.value.length;
-
+    
     const { data, error } = await supabase
           .rpc('addnewgames', {
 	      _v_id,
@@ -404,18 +382,25 @@ const addplaydb = async() => {
     if(error)
        console.error(error)
     else {
-        const { data, error } = await supabase
-    	      .from('game_record')
-	      .select('*')
-	      .eq('game_id',_v_id)
-	      .gt('game_no',_last_no)
-	if(error) {
-            console.log(error)
-	} else {
-	    games.value.push(...data);
-	    games.value.sort((a,b) => a.id - b.id);
-	}	
+    	games.value.push(...data);
+	games.value.sort((a,b) => a.id - b.id);
     }
+}
+
+const doUpdateGameUsers = () =>(_users) => {
+    console.log(1);
+    _users.forEach(async (_user) => {
+        console.log(_user);
+        let _player_name = _user.player_name;
+        let _user_id = _user.id;
+        let { data , error } = await supabase
+            .from('game_user')
+            .update({
+                'player_name' : _plaer_name,
+                'modified_at' : 'now()'})
+            .eq('id', _user_id)
+    });
+    users.value=[..._users.value];
 }
 
 onMounted(() => {
