@@ -12,7 +12,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-btn block @click="$emit('updateGameUsers',users)">更新</v-btn>
+        <v-btn block @click="doChange()">更新</v-btn>
       </v-col>
       <v-col>
         <v-btn block>キャンセル</v-btn>
@@ -22,12 +22,34 @@
 </template>
 
 <script setup>
+
+import { defineProps, defineEmits } from "vue";
+
 const props = defineProps({
   usersList : Array
 })
+const emit = defineEmits(
+    ['update-game-users']
+)
 const users = ref([]);
-onMounted(() => {
-  users.value=[...props.usersList];
-});
+const doChange = () => {
+    emit('update-game-users',users);
+}
 
+onMounted(() => {
+    let l=props.usersList.length;
+    for(let i=0;i<l;i++) {
+        let _id = props.usersList[i].id;
+        let _name = props.usersList[i].player_name;
+        let _no = props.usersList[i].player_no;
+        let _game_id = props.usersList[i].game_id;
+
+        users.value.push({
+            id: _id,
+            player_no: _no,
+            player_name: _name,
+            game_id: _game_id
+        });
+    }
+});
 </script>
