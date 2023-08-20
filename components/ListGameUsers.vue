@@ -12,10 +12,10 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-btn block @click="doChange()">更新</v-btn>
+        <v-btn color="secondary" block @click="doChange()">更新</v-btn>
       </v-col>
       <v-col>
-        <v-btn block>キャンセル</v-btn>
+        <v-btn color="info" block @click="doCancel()">キャンセル</v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -29,27 +29,19 @@ const props = defineProps({
   usersList : Array
 })
 const emit = defineEmits(
-    ['update-game-users']
+    ['update-game-users', 'cancel-game-users']
 )
 const users = ref([]);
 const doChange = () => {
     emit('update-game-users',users);
 }
+const doCancel = () => {
+    emit('cancel-game-users');
+}
 
 onMounted(() => {
-    let l=props.usersList.length;
-    for(let i=0;i<l;i++) {
-        let _id = props.usersList[i].id;
-        let _name = props.usersList[i].player_name;
-        let _no = props.usersList[i].player_no;
-        let _game_id = props.usersList[i].game_id;
-
-        users.value.push({
-            id: _id,
-            player_no: _no,
-            player_name: _name,
-            game_id: _game_id
-        });
-    }
+    users.value = props.usersList.map((x) => 
+        ({id:x.id, player_no:x.player_no, player_name:x.player_name, game_id: x.game_id})
+    );
 });
 </script>

@@ -3,11 +3,11 @@
     <v-container class="pa-0" v-for="game in games">
     <v-row @click="changeCurGame(game.game_no);" class="pl-2 pt-1 pb-1 bg-grey-lighten-2" no-gutters v-if="isOnajigame(game.game_no)>0">第{{isOnajigame(game.game_no)}}試合</v-row>
         <v-row no-gutters :class="getCurColor(game.game_no)">
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=1;chPlayerNo=game.player_1;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_1}}</v-row><v-row>{{ getUserName( game.player_1 ) }}</v-row></v-btn></v-col>
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=2;chPlayerNo=game.player_2;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_2}}</v-row><v-row>{{ getUserName( game.player_2 ) }}</v-row></v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=1;chPlayerNo=game.player_1;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_1}}</v-row><v-row class="pb-1">{{ getUserName( game.player_1 ) }}</v-row></v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=2;chPlayerNo=game.player_2;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_2}}</v-row><v-row class="pb-1">{{ getUserName( game.player_2 ) }}</v-row></v-btn></v-col>
           <v-col @click='changeCurGame(game.game_no);' cols="1">&nbsp;</v-col>
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=3;chPlayerNo=game.player_3;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_3}}</v-row><v-row>{{ getUserName( game.player_3 ) }}</v-row></v-btn></v-col>
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=1;chPlayerNo=game.player_4;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_4}}</v-row><v-row>{{ getUserName( game.player_4 ) }}</v-row></v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=3;chPlayerNo=game.player_3;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_3}}</v-row><v-row class="pb-1">{{ getUserName( game.player_3 ) }}</v-row></v-btn></v-col>
+          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=1;chPlayerNo=game.player_4;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_4}}</v-row><v-row class="pb-1">{{ getUserName( game.player_4 ) }}</v-row></v-btn></v-col>
         </v-row>
 	<v-row @click="changeCurGame(game.game_no)" no-gutters :class="getCurColor(game.game_no)" v-if="!(game.score_1==0 && game.score_2==0)">
 	  <v-col class="text-center">{{ calcShouhai(game.score_1, game.score_2)}}{{ game.score_1 }}</v-col>
@@ -139,7 +139,7 @@
     </v-dialog>
   </div>
   <div v-if="vtoggle==1">
-    <ListGameUsers :users-list="users" @update-game-users="doUpdateGameUsers"/>
+    <ListGameUsers :users-list="users" @update-game-users="doUpdateGameUsers" @cancel-game-users="doCancel" />
   </div>
   <v-layout class="overflow-visible" style="height: 56px;">
     <v-bottom-navigation
@@ -260,9 +260,14 @@ const getUserName = computed(()=> (_player_no) => {
     let a = users.value.find((e) => e.player_no == _player_no);
     if(typeof a === 'object') {
         let name = a.player_name;
-        if(name.length > 2)
-            name = name.substr(name,2) + '..';
-        return ' (' + name + ')';
+        if((typeof name === 'string') && (name !== '')) {
+            if (name.length > 2) {
+                name = name.substr(name,2) + '..';
+            }
+            return ' (' + name + ')';
+        } else {
+            return '';
+        }
     } else
         return ''
 })
@@ -409,6 +414,11 @@ const doUpdateGameUsers = (_users) => {
             .eq('id', _user_id)
     });
     users.value=[..._users.value];
+    vtoggle.value=0;
+}
+
+const doCancel = () => {
+    vtoggle.value=0;
 }
 
 onMounted(() => {
