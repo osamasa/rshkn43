@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pa-0" v-for="game in games">
+  <v-container class="pa-0" v-for="game in props.gameList">
     <v-row @click="changeCurGame(game.game_no);" class="pl-2 pt-1 pb-1 bg-grey-lighten-2" no-gutters v-if="isOnajigame(game.game_no)>0">第{{isOnajigame(game.game_no)}}試合</v-row>
     <v-row no-gutters :class="getCurColor(game.game_no)">
       <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=1;chPlayerNo=game.player_1;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_1}}</v-row><v-row class="pb-1">{{ getUserName( game.player_1 ) }}</v-row></v-btn></v-col>
@@ -141,18 +141,14 @@
 import { defineProps, defineEmits } from "vue";
 const props = defineProps({
     gameList : Array,
-    gameCurgame : Numeric,
     gameUsers : Array,
-    coatnum : Numeric,
-    person : Numeric,
-    doblesflg : Boolean
+    gameSetting : Array,
 })
 const emit = defineEmits(
     ['update-player', 'change-curgame', 'add-playdb', 'update-game-score']
 )
-const games = ref([]);
+const gameDobulesflg=ref(true);
 const curgame = ref(0);
-const users = ref([]);
 
 const vtoggle = ref(0);
 const dlgFirstMenu = ref(false);
@@ -171,7 +167,7 @@ const d_score_1 = ref(0);
 const d_score_2 = ref(0);
 
 const getUserName = computed(()=> (_player_no) => {
-    let a = users.value.find((e) => e.player_no == _player_no);
+    let a = props.gameUsers.value.find((e) => e.player_no == _player_no);
     if(typeof a === 'object') {
         let name = a.player_name;
         if((typeof name === 'string') && (name !== '')) {
@@ -189,6 +185,7 @@ const getUserName = computed(()=> (_player_no) => {
 const getCurColor = computed(()=>(_game_no) => {
     let realcoatnum = calcRealCoatnum();
     if(((curgame.value-1) * realcoatnum < _game_no) && (curgame.value*realcoatnum+1 > _game_no)) {
+        
         return 'bg-yellow-lighten-4';
     } else {
         return '';
@@ -196,17 +193,17 @@ const getCurColor = computed(()=>(_game_no) => {
 });
 
 const getCurUserNo = computed(()=>() => {
-    let pgame = games.value.filter((game) => {return(game.id === d_gameid.value)});
+    let pgame = props.gamesList.value.filter((game) => {return(game.id === d_gameid.value)});
     return pgame[0]['player_' + usePlayerPos.value];
 });
 
 const getCurShiainum = computed(()=>() => {
-    let pgame = games.value.filter((game) => {return(game.id === d_gameid.value)});
+    let pgame = props.gamesList.value.filter((game) => {return(game.id === d_gameid.value)});
     return calcRealshiaiNum(pgame[0].game_no);
 });
 
 const getPlayearsList = computed(() =>() => {
-    let m=users.value.length;
+    let m=props.gameUsers.value.length;
     let nplayers = [...Array(m)].map((_,i) => i + 1 );
 
     return nplayers;
@@ -216,16 +213,16 @@ const calcShouhai = computed(() =>(s1,s2) => {
     return s1 == s2 ? '△' : s1 > s2 ? '◯' : '×';
 });    
 
-
 const calcRealCoatnum=() => {
     let realcoatnum = 0;
-    if (prop.doblesflg) {
-        realcoatnum = Math.floor(prop.person / 4);
+    if (props.gameSetting.dobulesflg.value) {
+        realcoatnum = Math.floor(props.gameSetting.person / 4);
     } else {
-        realcoatnum = Math.floor(prop.person / 2);
+        realcoatnum = Math.floor(props.gameSetting.person / 2);
     }
-    if(realcoatnum > prop.coatnum) {
-        realcoatnum = prop.coatnum;
+    
+    if(realcoatnum > props.gameSetting.coatnum) {
+        realcoatnum = props.gameSetting.coatnum;
     }
     return realcoatnum;
 }
@@ -235,7 +232,7 @@ const isOnajigame = computed(()=> (_no) => {
     return realcoatnum==1 ? _no : (_no-1) % realcoatnum == 0 ? (Math.floor(_no / realcoatnum)+1) : 0;
 })
 
-const const changeCurGame = (_no) => {
+const changeCurGame = (_no) => {
     curgame.value=_no;
     emit('change-curgame', _no);
 }
@@ -253,23 +250,6 @@ const doUpdateGameScore =() => {
 }
 
 onMounted(() => {
-    curgame.value = props.gameCurgame;
-    games.value = props.gameList.map((x) => 
-        ({id:x.id,
-          game_no:x.game_no,
-          player_1:x.player_1,
-          player_2:x.player_2,
-          player_3:x.player_3,
-          player_4:x.player_4,
-          score_1:x.score_1,
-          score_2:x.score_2,
-          game_id:x.game_id
-         }));
-    
-    users.value = props.gameUsers.map((x) =>
-        ({id:x.id,
-          player_no:x.player_no,
-          player_name:x.player_name,
-         }));
+    curgame.value = props.gameSetting.curgame;
 });
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div v-if="vtoggle==0">
-    <ListGames :coatnum="coatnum.value" :person="person.value" :doblesflg="doblesflg.value" :game-curgame="curgame" :games-list="games" @update-player="doUpdatePlayer" @change-curgame="doChangeCurgame" @add-playdb="doAddplaydb" @update-game-score="doUpdateGameScore"/>
+    <ListGames :game-list="games" :game-users="users" :game-setting="gameSetting" @update-player="doUpdatePlayer" @change-curgame="doChangeCurgame" @add-playdb="doAddplaydb" @update-game-score="doUpdateGameScore"/>
   </div>
   <div v-if="vtoggle==1">
     <ListGameUsers :users-list="users" @update-game-users="doUpdateGameUsers" @cancel-game-users="doCancel" />
@@ -34,26 +34,20 @@
 const supabase = useSupabaseClient();
 const { gameid } = useGameid();
 
+const vtoggle = ref(0);
 const games = ref([]);
 const users = ref([]);
-
-const coatnum = ref(0);
-const person = ref(0);
-const doblesflg = ref(false);
-const curgame = ref(0);
+const gameSetting = ref([]);
 
 const readcurgame = async() => {
     let { data , error } = await supabase
-       .from('games')
+        .from('games')
         .select('curgame,player_num,coat_num,dobules_flg')
-       .eq('id',gameid.value);
+        .eq('id',gameid.value);
     if(error) {
         console.log(error)
-} else {
-        curgame.value = data[0].curgame;
-        doblesflg.value = data[0].dobules_flg;
-        person.value= data[0].player_num;
-        coatnum.value = data[0].coat_num;
+    } else {
+        gameSetting.curgame.value = data[0];
     }
 }
 
@@ -88,13 +82,13 @@ const readfirst = async() => {
 
 const calcRealCoatnum=() => {
     let realcoatnum = 0;
-    if (doblesflg) {
-        realcoatnum = Math.floor(person.value / 4);
+    if (gameSetting.dobulesflg.value) {
+        realcoatnum = Math.floor(gameSetting.person.value / 4);
     } else {
-        realcoatnum = Math.floor(person.value / 2);
+        realcoatnum = Math.floor(gameSetting.person.value / 2);
     }
-    if(realcoatnum > coatnum.value) {
-        realcoatnum = coatnum.value;
+    if(realcoatnum > gameSetting.coatnum.value) {
+        realcoatnum = gameSetting.coatnum.value;
     }
     return realcoatnum;
 }
@@ -178,9 +172,9 @@ const doUpdateGameScore = async(d_gameid, d_score_1, d_score_2) => {
 
 const doAddplaydb = async() => {
     let _v_id = gameid.value;
-    let _coat_num = coatnum.value;
-    let _dobules_flg = doblesflg.value;
-    let _person_num = person.value;
+    let _coat_num = gameSetting.coatnum.value;
+    let _dobules_flg = gameSetting.dobulesflg.value;
+    let _person_num = gameSetting.person.value;
     let _last_no = games.value.length;
     
     const { data, error } = await supabase
