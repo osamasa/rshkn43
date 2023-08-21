@@ -1,6 +1,6 @@
 <template>
   <div v-if="vtoggle==0">
-    <ListGames :game-curgame="curgame" :games-list="games" @change-curgame="doChangeCurgame" @update-player="updatePlayer"/>
+    <ListGames :coatnum="coatnum.value" :person="person.value" :doblesflg="doblesflg.value" :game-curgame="curgame" :games-list="games" @update-player="doUpdatePlayer" @change-curgame="doChangeCurgame" @add-playdb="doAddplaydb" @update-game-score="doUpdateGameScore"/>
   </div>
   <div v-if="vtoggle==1">
     <ListGameUsers :users-list="users" @update-game-users="doUpdateGameUsers" @cancel-game-users="doCancel" />
@@ -36,18 +36,11 @@ const { gameid } = useGameid();
 
 const games = ref([]);
 const users = ref([]);
-const vtoggle = ref(0);
-const dlgFirstMenu = ref(false);
-const dlgSecondMenu = ref(false);
-const dlgThridMenu = ref(false);
+
 const coatnum = ref(0);
 const person = ref(0);
 const doblesflg = ref(false);
 const curgame = ref(0);
-
-const usePlayerPos = ref(0);
-const chPlayerNo = ref(0);
-
 
 const readcurgame = async() => {
     let { data , error } = await supabase
@@ -130,7 +123,7 @@ const doChangeCurgame = async (_no) => {
     }
 };
 
-const updatePlayer = async(_gameid,_usePlayerpos,_chPlayerNo) => {
+const doUpdatePlayer = async(_gameid,_usePlayerpos,_chPlayerNo) => {
     let _rerodGameid = _gameid;
     let _playername = 'player_' + _usePlayerPos;
     let newValue = _chPlayerNo;
@@ -157,16 +150,16 @@ const updatePlayer = async(_gameid,_usePlayerpos,_chPlayerNo) => {
     }
 }
 
-const updateGameScore = async() => {
-    let _rerodGameid = d_gameid.value;
+const doUpdateGameScore = async(d_gameid, d_score_1, d_score_2) => {
+    let _rerodGameid = d_gameid;
 
     const { data, error } = await supabase
           .from('game_record')
           .update(
 	      {
 	      	  'modified_at' : 'now()',
-		  'score_1' : d_score_1.value,
-		  'score_2' : d_score_2.value
+		  'score_1' : d_score_1,
+		  'score_2' : d_score_2
 	      }
 	  )
           .eq('id', _rerodGameid )
@@ -183,7 +176,7 @@ const updateGameScore = async() => {
     }
 }
 
-const addplaydb = async() => {
+const doAddplaydb = async() => {
     let _v_id = gameid.value;
     let _coat_num = coatnum.value;
     let _dobules_flg = doblesflg.value;

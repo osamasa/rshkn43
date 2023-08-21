@@ -119,7 +119,7 @@
 	  <v-col>
             <v-btn
 	      color="success"
-	      @click="updateGameScore();dlgThridMenu = false"
+	      @click="doUpdateGameScore();dlgThridMenu = false"
 	      >
 	      更新
             </v-btn>
@@ -143,13 +143,24 @@ const props = defineProps({
     gameList : Array,
     gameCurgame : Numeric,
     gameUsers : Array,
+    coatnum : Numeric,
+    person : Numeric,
+    doblesflg : Boolean
 })
 const emit = defineEmits(
-    ['update-game-lists', 'change-curgame']
+    ['update-player', 'change-curgame', 'add-playdb', 'update-game-score']
 )
 const games = ref([]);
 const curgame = ref(0);
 const users = ref([]);
+
+const vtoggle = ref(0);
+const dlgFirstMenu = ref(false);
+const dlgSecondMenu = ref(false);
+const dlgThridMenu = ref(false);
+
+const usePlayerPos = ref(0);
+const chPlayerNo = ref(0);
 
 const d_gameid = ref(0);
 const d_player_1 = ref(0);
@@ -206,23 +217,17 @@ const calcShouhai = computed(() =>(s1,s2) => {
 });    
 
 
-
 const calcRealCoatnum=() => {
     let realcoatnum = 0;
-    if (doblesflg) {
-        realcoatnum = Math.floor(person.value / 4);
+    if (prop.doblesflg) {
+        realcoatnum = Math.floor(prop.person / 4);
     } else {
-        realcoatnum = Math.floor(person.value / 2);
+        realcoatnum = Math.floor(prop.person / 2);
     }
-    if(realcoatnum > coatnum.value) {
-        realcoatnum = coatnum.value;
+    if(realcoatnum > prop.coatnum) {
+        realcoatnum = prop.coatnum;
     }
     return realcoatnum;
-}
-
-const const changeCurGame = (_no) => {
-    curgame.value=_no;
-    emit('changecurgame', _no);
 }
 
 const isOnajigame = computed(()=> (_no) => {
@@ -230,12 +235,21 @@ const isOnajigame = computed(()=> (_no) => {
     return realcoatnum==1 ? _no : (_no-1) % realcoatnum == 0 ? (Math.floor(_no / realcoatnum)+1) : 0;
 })
 
+const const changeCurGame = (_no) => {
+    curgame.value=_no;
+    emit('change-curgame', _no);
+}
+
 const doUpdatePlayer = () => {
     emit( 'update-player', d_gameid.value, usePlayerPos.value, chPlayerNo.value);
 }
 
 const doAddplaydb = () => {
     emit ( 'add-playdb' );
+}
+
+const doUpdateGameScore =() => {
+    emit ('update-game-score' , d_gameid.value, d_score_1.value, d_score_2.value );
 }
 
 onMounted(() => {
