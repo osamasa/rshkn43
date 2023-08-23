@@ -3,7 +3,7 @@
     <v-container class="pa-0" v-for="game in games">
     <v-row @click="changeCurGame(game.game_no);" class="pl-2 pt-1 pb-1 bg-grey-lighten-2" no-gutters v-if="isOnajigame(game.game_no)>0">第{{isOnajigame(game.game_no)}}試合</v-row>
         <v-row no-gutters :class="getCurColor(game.game_no)">
-          <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=1;chPlayerNo=game.player_1;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_1}}</v-row><v-row class="pb-1">{{ getUserName( game.player_1 ) }}</v-row></v-btn></v-col>
+          <v-col class="ma-1"><TextComp :game="game" :game_user="users" :position=1  /><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=1;chPlayerNo=game.player_1;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_1}}</v-row><v-row class="pb-1">{{ getUserName( game.player_1 ) }}</v-row></v-btn></v-col>
           <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=2;chPlayerNo=game.player_2;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_2}}</v-row><v-row class="pb-1">{{ getUserName( game.player_2 ) }}</v-row></v-btn></v-col>
           <v-col @click='changeCurGame(game.game_no);' cols="1">&nbsp;</v-col>
           <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=3;chPlayerNo=game.player_3;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_3}}</v-row><v-row class="pb-1">{{ getUserName( game.player_3 ) }}</v-row></v-btn></v-col>
@@ -178,7 +178,7 @@ const dlgSecondMenu = ref(false);
 const dlgThridMenu = ref(false);
 const coatnum = ref(0);
 const person = ref(0);
-const doblesflg = ref(false);
+const doblues_flg = ref(false);
 const curgame = ref(0);
 
 const usePlayerPos = ref(0);
@@ -201,7 +201,7 @@ const readcurgame = async() => {
         console.log(error)
 } else {
         curgame.value = data[0].curgame;
-        doblesflg.value = data[0].dobules_flg;
+        doblues_flg.value = data[0].dobules_flg;
         person.value= data[0].player_num;
         coatnum.value = data[0].coat_num;
     }
@@ -238,7 +238,7 @@ const readfirst = async() => {
 
 const calcRealCoatnum=() => {
     let realcoatnum = 0;
-    if (doblesflg) {
+    if (doblues_flg) {
         realcoatnum = Math.floor(person.value / 4);
     } else {
         realcoatnum = Math.floor(person.value / 2);
@@ -382,7 +382,7 @@ const updateGameScore = async() => {
 const addplaydb = async() => {
     let _v_id = gameid.value;
     let _coat_num = coatnum.value;
-    let _dobules_flg = doblesflg.value;
+    let _dobules_flg = doblues_flg.value;
     let _person_num = person.value;
     let _last_no = games.value.length;
     
