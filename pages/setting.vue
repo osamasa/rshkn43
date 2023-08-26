@@ -57,7 +57,11 @@ const gostart = async () => {
     const { data, error } = await supabase
        .from('users')
        .upsert({ loginid : userid.value })
-       .select()
+       .select();
+    if(error) {
+        console.log(error)
+        // なにもしない
+    }
     router.push('/gostart');
 };
 

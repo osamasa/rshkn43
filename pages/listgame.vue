@@ -37,17 +37,18 @@ const { gameid } = useGameid();
 const vtoggle = ref(0);
 const games = ref([]);
 const users = ref([]);
-const gameSetting = ref([]);
+const gameSetting = ref({});
+const gameRecord = ref({});
 
 const readcurgame = async() => {
     let { data , error } = await supabase
         .from('games')
-        .select('curgame,player_num,coat_num,dobules_flg')
+        .select('*')
         .eq('id',gameid.value);
     if(error) {
         console.log(error)
     } else {
-        gameSetting.curgame.value = data[0];
+        gameSetting.value = data[0];
     }
 }
 
@@ -82,13 +83,13 @@ const readfirst = async() => {
 
 const calcRealCoatnum=() => {
     let realcoatnum = 0;
-    if (gameSetting.dobulesflg.value) {
-        realcoatnum = Math.floor(gameSetting.person.value / 4);
+    if (gameSetting.value.dobules_flg) {
+        realcoatnum = Math.floor(gameSetting.value.player_num / 4);
     } else {
-        realcoatnum = Math.floor(gameSetting.person.value / 2);
+        realcoatnum = Math.floor(gameSetting.value.player_num / 2);
     }
-    if(realcoatnum > gameSetting.coatnum.value) {
-        realcoatnum = gameSetting.coatnum.value;
+    if(realcoatnum > gameSetting.value.coat_num) {
+        realcoatnum = gameSetting.value.coat_num;
     }
     return realcoatnum;
 }
@@ -104,7 +105,7 @@ const doChangeCurgame = async (_no) => {
     let realshiainum = calcRealshiaiNum(_no);
     let _gameid = gameid.value;
     
-    curgame.value = realshiainum;
+    gameSetting.value.curgame = realshiainum;
     
     const { data, error } =  await supabase
           .from('games')
@@ -172,9 +173,9 @@ const doUpdateGameScore = async(d_gameid, d_score_1, d_score_2) => {
 
 const doAddplaydb = async() => {
     let _v_id = gameid.value;
-    let _coat_num = gameSetting.coatnum.value;
-    let _dobules_flg = gameSetting.dobulesflg.value;
-    let _person_num = gameSetting.person.value;
+    let _coat_num = gameSetting.value.coat_num;
+    let _dobules_flg = gameSetting.value.dobules_flg;
+    let _person_num = gameSetting.value.player_num;
     let _last_no = games.value.length;
     
     const { data, error } = await supabase
@@ -216,14 +217,15 @@ onMounted(() => {
     readfirst();
     readsecond();
     readcurgame();
-    let gameRecord = supabase.channel('custom-all-channel')
+    gameRecord.value = supabase.channel('table_postgres_changes')
         .on(
             'postgres_changes',
             { event: '*', schema: 'public', table: 'games,game_record,game_user' },
             (payload) => {
                 if((payload.table === 'games') && (payload.eventType === 'UPDATE')) {
                     if(payload.new.game_id === gameid.value) {
-                        curgame.value = payload.new.curgame;
+                        gameSetting.value = payload.new;
+                        console.log(gameSetting.value);
                     }
                 } else if((payload.table === 'game_record') && (payload.eventType === 'INSERT')) {
                     if(payload.new.game_id === gameid.value) {
@@ -264,6 +266,14 @@ onMounted(() => {
                 }
             }
         )
-        .subscribe()    
+        .subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+                console.log('SUBSCRIBED');
+            }})
+});
+onUnmounted(() => {
+    if(gameRecord.value) {
+        supabase.removeSubscription(gameRecord.value);
+    }
 });
 </script>

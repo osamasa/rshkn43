@@ -142,7 +142,7 @@ import { defineProps, defineEmits } from "vue";
 const props = defineProps({
     gameList : Array,
     gameUsers : Array,
-    gameSetting : Array,
+    gameSetting : Object
 })
 const emit = defineEmits(
     ['update-player', 'change-curgame', 'add-playdb', 'update-game-score']
@@ -167,7 +167,7 @@ const d_score_1 = ref(0);
 const d_score_2 = ref(0);
 
 const getUserName = computed(()=> (_player_no) => {
-    let a = props.gameUsers.value.find((e) => e.player_no == _player_no);
+    let a = props.gameUsers.find((e) => e.player_no == _player_no);
     if(typeof a === 'object') {
         let name = a.player_name;
         if((typeof name === 'string') && (name !== '')) {
@@ -203,7 +203,7 @@ const getCurShiainum = computed(()=>() => {
 });
 
 const getPlayearsList = computed(() =>() => {
-    let m=props.gameUsers.value.length;
+    let m=props.gameUsers.length;
     let nplayers = [...Array(m)].map((_,i) => i + 1 );
 
     return nplayers;
@@ -215,14 +215,14 @@ const calcShouhai = computed(() =>(s1,s2) => {
 
 const calcRealCoatnum=() => {
     let realcoatnum = 0;
-    if (props.gameSetting.dobulesflg.value) {
-        realcoatnum = Math.floor(props.gameSetting.person / 4);
+    if (props.gameSetting.dobules_flg) {
+        realcoatnum = Math.floor(props.gameSetting.player_num / 4);
     } else {
-        realcoatnum = Math.floor(props.gameSetting.person / 2);
+        realcoatnum = Math.floor(props.gameSetting.player_num / 2);
     }
     
-    if(realcoatnum > props.gameSetting.coatnum) {
-        realcoatnum = props.gameSetting.coatnum;
+    if(realcoatnum > props.gameSetting.coat_num) {
+        realcoatnum = props.gameSetting.coat_num;
     }
     return realcoatnum;
 }
@@ -249,7 +249,7 @@ const doUpdateGameScore =() => {
     emit ('update-game-score' , d_gameid.value, d_score_1.value, d_score_2.value );
 }
 
-onMounted(() => {
+onUpdated(() => {
     curgame.value = props.gameSetting.curgame;
 });
 </script>
