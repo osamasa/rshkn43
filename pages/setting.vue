@@ -19,7 +19,8 @@ const runtimeConfig = useRuntimeConfig();
 const router = useRouter();
 const islogin = ref(false);
 const isClient = ref(false);
-const { userid, updateUserid } = useUserid()
+const { userid, updateUserid } = useUserid();
+const { gameid, updateGameid } = useGameid();
 
 const myloginCheck = () => {
       // ログインチェック
@@ -66,11 +67,27 @@ const gostart = async () => {
 };
 
 const recover = async () => {
-let { data, error } = await supabase
-  .rpc('hello_world')
-
-if (error) console.error(error)
-else console.log(data)    
+    const { data, error } = await supabase
+          .from('users')
+          .select('id')
+          .eq('loginid',userid.value)
+          .single()
+    if(error) {
+        console.log(error)
+    } else {
+        const { data, error } = await supabase
+              .from('games')
+              .select('id')
+              .eq('userid',userid.value)
+              .single()
+        if(error) {
+            console.log(error)
+        } else {
+            console.log(data.id);
+            updateGameid(data.id);
+            router.push('/listgame')
+        }
+    }
 };
 
 </script>

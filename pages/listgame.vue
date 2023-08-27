@@ -38,17 +38,22 @@ const vtoggle = ref(0);
 const games = ref([]);
 const users = ref([]);
 const gameSetting = ref({});
-const gameRecord = ref({});
+const gameRecord = ref();
+
+const zeroPadding = (NUM, LEN) => {
+    return ( Array(LEN).join('0') + NUM ).slice( -LEN );
+}
 
 const readcurgame = async() => {
     let { data , error } = await supabase
         .from('games')
         .select('*')
-        .eq('id',gameid.value);
+        .eq('id',gameid.value)
+        .single()
     if(error) {
         console.log(error)
     } else {
-        gameSetting.value = data[0];
+        gameSetting.value = data;
     }
 }
 
@@ -56,7 +61,8 @@ const readsecond = async() => {
     let { data , error } = await supabase
        .from('game_user')
        .select('*')
-       .eq('game_id',gameid.value);
+       .eq('game_id',gameid.value)
+       .order('player_no', { ascending: true })
     if(error) {
         console.log(error)
     } else {
@@ -71,9 +77,10 @@ const readsecond = async() => {
 
 const readfirst = async() => {
     let { data , error } = await supabase
-       .from('game_record')
-       .select('*')
-       .eq('game_id',gameid.value);
+        .from('game_record')
+        .select('*')
+        .eq('game_id',gameid.value)
+        .order('game_no', { ascending: true })    
     if(error) {
         console.log(error)
     } else {
@@ -213,67 +220,70 @@ const doCancel = () => {
     vtoggle.value=0;
 }
 
-onMounted(() => {
+onMounted(()=>{
+    let channel1 = zeroPadding(gameid.value,10);
+    
     readfirst();
     readsecond();
     readcurgame();
-    gameRecord.value = supabase.channel('table_postgres_changes')
-        .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'games,game_record,game_user' },
+    gameRecord.value = supabase.channel(channel1)
+          .on('postgres_changes',
+              { event: 'UPDATE',
+                schema: 'public',
+                table:'games',
+                filter: 'id=eq.'+gameid.value
+              },
+              (payload) => {
+                  gameSetting.value = payload.new;
+              })
+          .on('postgres_changes',
+            { event: 'INSERT',
+              schema: 'public',
+              table: 'game_record',
+              filter: 'game_id=eq.'+gameid.value
+            },
             (payload) => {
-                if((payload.table === 'games') && (payload.eventType === 'UPDATE')) {
-                    if(payload.new.game_id === gameid.value) {
-                        gameSetting.value = payload.new;
-                        console.log(gameSetting.value);
-                    }
-                } else if((payload.table === 'game_record') && (payload.eventType === 'INSERT')) {
-                    if(payload.new.game_id === gameid.value) {
-                        games.value.push(payload.new);
-                    }
-                } else if((payload.table === 'game_record') && (payload.eventType === 'UPDATE')) {
-                    if(payload.new.game_id === gameid.value) {
-                        let result = games.value.filter((game) => {
-                            return (game.id != payload.old.id);
-                        });
-                        games.value = result;
-                        games.value.push(payload.new);
-                        games.value.sort((a,b) => a.id - b.id);
-                    }
-                } else if((payload.table === 'game_record') && (payload.eventType === 'DELETE')) {
-                    let result = games.value.filter((game) => {
-                        return (game.id != payload.old.id);
-                    });
-                    games.value = result;
-                } else if((payload.table === 'game_user') && (payload.eventType === 'INSERT')) {
-                    if(payload.new.game_id === gameid.value) {
-                        users.value.push(payload.new);
-                    }
-                } else if((payload.table === 'game_user') && (payload.eventType === 'UPDATE')) {
-                    if(payload.new.game_id === gameid.value) {
-                        let result = users.value.filter((user) => {
-                            return (user.id != payload.old.id);
-                        });
-                        users.value = result;
-                        users.value.push(payload.new);
-                        users.value.sort((a,b) => a.id - b.id);
-                    }
-                } else if((payload.table === 'game_user') && (payload.eventType === 'DELETE')) {
-                    let result = users.value.filter((user) => {
-                        return (user.id != payload.old.id);
-                    });
-                    users.value = result;
-                }
-            }
-        )
-        .subscribe(async (status) => {
-            if (status === 'SUBSCRIBED') {
-                console.log('SUBSCRIBED');
-            }})
-});
+                games.value.push(payload.new);
+                games.value.sort((a,b) => a.game_no - b.game_no);
+            })
+          .on('postgres_changes',
+            { event: 'UPDATE',
+              schema: 'public',
+              table: 'game_record',
+              filter: 'game_id=eq.'+gameid.value
+            },
+            (payload) => {
+                let result = games.value.filter((game) => {
+                    return (game.id != payload.old.id);
+                });
+                games.value = result;
+                games.value.push(payload.new);
+                games.value.sort((a,b) => a.id - b.id);
+            })
+          .on('postgres_changes',
+            { event: 'UPDATE',
+              schema: 'public',
+              table: 'game_user',
+              filter: 'game_id=eq.'+gameid.value
+            },
+            (payload) => {
+                let result = users.value.filter((user) => {
+                    return (user.id != payload.old.id);
+                });
+                users.value = result;
+                users.value.push(payload.new);
+                users.value.sort((a,b) => a.id - b.id);
+            })
+        .subscribe()
+})
+
+const untrackPresence = async () => {
+  const presenceUntrackStatus = await gameRecord.value.untrack();
+}
+
 onUnmounted(() => {
     if(gameRecord.value) {
-        supabase.removeSubscription(gameRecord.value);
+        untrackPresence();
     }
 });
 </script>
