@@ -18,3 +18,6 @@ export const calcRealshiaiNum=((_no,dobules_flg,player_num,coat_num) => {
     return retv;
 });
 
+export const calcShouhai = computed(() =>(s1,s2) => {
+    return s1 == s2 ? '△' : s1 > s2 ? '◯' : '×';
+});    

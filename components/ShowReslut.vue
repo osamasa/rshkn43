@@ -1,5 +1,73 @@
 <template>
-<div>試合結果</div>
+  <v-container>    
+    <div>試合結果</div>
+    <v-table>
+      <thead>
+        <tr>
+          <th class="text-left">
+            No.
+          </th>
+          <th class="text-left">
+            名前
+          </th>
+          <th class="text-left">
+            勝数
+          </th>
+          <th class="text-left">
+            負数
+          </th>
+          <th class="text-left">
+            引分
+          </th>
+          <th class="text-left">
+            勝率(%)
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="items in playererecord"
+          :key="items.player_no">
+          <td>{{ items.player_no}}</td>
+          <td>{{ items.player_name}}</td>        
+          <td>{{ items.win}}</td>
+          <td>{{ items.lose}}</td>
+          <td>{{ items.draw}}</td>
+          <td>{{ items.rate}}</td>
+        </tr>
+      </tbody>
+    </v-table>
+  </v-container>
+  <v-container>
+    <div>試合詳細</div>
+    <v-table>
+      <tbody>
+        <tr
+          v-for="items in props.gameList.filter((recs)=>{return (!(recs.score_1==0 && recs.score_2==0))})"
+          :key="items.game_no">
+          <td>{{ items.game_no}}</td>
+          <td>
+            <tr>
+              <td>{{ items.player_1}}&nbsp;{{ items.player_2}}</td>
+            </tr>
+            <tr>
+              <td>{{ items.score_1}}</td>
+              <td>{{ calcShouhai(items.score_1,items.score_2) }}</td>
+            </tr>            
+          </td>
+          <td>vs</td>
+          <td>            <tr>
+              <td>{{ items.player_3}}&nbsp;{{ items.player_4}}</td>
+            </tr>
+            <tr>
+              <td>{{ items.score_2}}</td>
+              <td>{{ calcShouhai(items.score_2,items.score_1) }}</td>              
+            </tr>            
+          </td>
+        </tr>        
+      </tbody>
+    </v-table>
+  </v-container>    
 </template>
 
 <script setup>
@@ -10,61 +78,54 @@ const props = defineProps({
 })
 const itemsPerPage = ref(5);
 const playererecord = ref([]);
-const headers = [
-    {
-        title: '',
-        align: 'start',
-        sortable: false,
-        key: 'player_no',
-    },
-    { title: '番号', key: 'player_no', align: 'end' },
-    { title: '名前', key: 'player_name', align: 'end' },
-    { title: '勝ち', key: 'win', align: 'end' },
-    { title: '負け', key: 'lose', align: 'end' },
-    { title: '引き分け', key: 'draw', align: 'end' },
-    { title: '勝率(%)', key: 'rate', align: 'end' }
-];
-onUpdated(()=>{
-    playe_win_rec = new Array(props.gameUsers.length).fill(0);
-    playe_lose_rec = new Array(props.gameUsers.length).fill(0);
-    playe_draw_rec = new Array(props.gameUsers.length).fill(0);
 
-    props.gameList.forEach((rec)=> {
-        if(!((rec.score_1 == 0) && (rec.score_2 == 0))) {
-            if(rec.score_1 == rec.score_2) {
+onMounted(()=>{
+
+    let playe_win_rec = new Array(props.gameUsers.length).fill(0);
+    let playe_lose_rec = new Array(props.gameUsers.length).fill(0);
+    let playe_draw_rec = new Array(props.gameUsers.length).fill(0);
+
+    props.gameList.forEach((rec) => {
+        let playe_1 = Number ( rec.player_1 ) - 1;
+        let playe_2 = Number ( rec.player_2 ) - 1;
+        let playe_3 = Number ( rec.player_3 ) - 1;
+        let playe_4 = Number ( rec.player_4 ) - 1;
+        console.log(playe_1,playe_2,playe_3,playe_4,Number(rec.score_1),Number(rec.score_2));
+        if(!((Number(rec.score_1) == 0) && (Number(rec.score_2) == 0))) {
+            
+            if(Number(rec.score_1) == Number(rec.score_2)) {
                 if(props.gameSetting.dobules_flg) {
-                    playe_draw_rec[rec.playe_1]=playe_draw_rec[rec.playe_1]+1;
-                    playe_draw_rec[rec.playe_2]=playe_draw_rec[rec.playe_2]+1;
-                    playe_draw_rec[rec.playe_3]=playe_draw_rec[rec.playe_3]+1;
-                    playe_draw_rec[rec.playe_4]=playe_draw_rec[rec.playe_4]+1;
+                    playe_draw_rec[playe_1]=playe_draw_rec[playe_1]+1;
+                    playe_draw_rec[playe_2]=playe_draw_rec[playe_2]+1;
+                    playe_draw_rec[playe_3]=playe_draw_rec[playe_3]+1;
+                    playe_draw_rec[playe_4]=playe_draw_rec[playe_4]+1;
                 } else {
-                    playe_draw_rec[rec.playe_1]=playe_draw_rec[rec.playe_1]+1;
-                    playe_draw_rec[rec.playe_2]=playe_draw_rec[rec.playe_2]+1;                    
+                    playe_draw_rec[playe_1]=playe_draw_rec[playe_1]+1;
+                    playe_draw_rec[playe_2]=playe_draw_rec[playe_2]+1;                    
                 }
-            } else if(rec.score_1 > rec.score_2){
+            } else if(Number(rec.score_1) > Number(rec.score_2)) {
                 if(props.gameSetting.dobules_flg) {
-                    playe_win_rec[rec.playe_1]=playe_draw_rec[rec.playe_1]+1;
-                    playe_win_rec[rec.playe_2]=playe_draw_rec[rec.playe_2]+1;
-                    playe_lose_rec[rec.playe_3]=playe_draw_rec[rec.playe_3]+1;
-                    playe_lose_rec[rec.playe_4]=playe_draw_rec[rec.playe_4]+1;
+                    playe_win_rec[playe_1]=playe_draw_rec[playe_1]+1;
+                    playe_win_rec[playe_2]=playe_draw_rec[playe_2]+1;
+                    playe_lose_rec[playe_3]=playe_draw_rec[playe_3]+1;
+                    playe_lose_rec[playe_4]=playe_draw_rec[playe_4]+1;
                 } else {
-                    playe_win_rec[rec.playe_1]=playe_draw_rec[rec.playe_1]+1;
-                    playe_lose_rec[rec.playe_2]=playe_draw_rec[rec.playe_2]+1;                    
+                    playe_win_rec[playe_1]=playe_draw_rec[playe_1]+1;
+                    playe_lose_rec[playe_2]=playe_draw_rec[playe_2]+1;                    
                 }                
-            } else if(rec.score_1 < rec.score_2){
+            } else if(Number(rec.score_1) < Number(rec.score_2)) {
                 if(props.gameSetting.dobules_flg) {
-                    playe_lose_rec[rec.playe_1]=playe_draw_rec[rec.playe_1]+1;
-                    playe_lose_rec[rec.playe_2]=playe_draw_rec[rec.playe_2]+1;
-                    playe_win_rec[rec.playe_3]=playe_draw_rec[rec.playe_3]+1;
-                    playe_win_rec[rec.playe_4]=playe_draw_rec[rec.playe_4]+1;
+                    playe_lose_rec[playe_1]=playe_draw_rec[playe_1]+1;
+                    playe_lose_rec[playe_2]=playe_draw_rec[playe_2]+1;
+                    playe_win_rec[playe_3]=playe_draw_rec[playe_3]+1;
+                    playe_win_rec[playe_4]=playe_draw_rec[playe_4]+1;
                 } else {
-                    playe_lose_rec[rec.playe_1]=playe_draw_rec[rec.playe_1]+1;
-                    playe_win_rec[rec.playe_2]=playe_draw_rec[rec.playe_2]+1;                    
+                    playe_lose_rec[playe_1]=playe_draw_rec[playe_1]+1;
+                    playe_win_rec[playe_2]=playe_draw_rec[playe_2]+1;                    
                 }
             }
         }
     });
-
     props.gameUsers.map((rec,i) => {
         let resultRec = {
             player_no : rec.player_no,
@@ -76,7 +137,6 @@ onUpdated(()=>{
         }
         playererecord.value.push(resultRec);
     });
-    console.log(playererecord.value);
 })
 
 </script>

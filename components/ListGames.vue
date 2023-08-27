@@ -207,10 +207,6 @@ const getPlayearsList = computed(() =>() => {
     return nplayers;
 });
 
-const calcShouhai = computed(() =>(s1,s2) => {
-    return s1 == s2 ? '△' : s1 > s2 ? '◯' : '×';
-});    
-
 const calcRealCoatnum=() => {
     let realcoatnum = 0;
     if (props.gameSetting.dobules_flg) {

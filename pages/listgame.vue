@@ -91,28 +91,11 @@ const readfirst = async() => {
     }
 }
 
-const calcRealCoatnum=() => {
-    let realcoatnum = 0;
-    if (gameSetting.value.dobules_flg) {
-        realcoatnum = Math.floor(gameSetting.value.player_num / 4);
-    } else {
-        realcoatnum = Math.floor(gameSetting.value.player_num / 2);
-    }
-    if(realcoatnum > gameSetting.value.coat_num) {
-        realcoatnum = gameSetting.value.coat_num;
-    }
-    return realcoatnum;
-}
-
-const calcRealshiaiNum=((_no) => {
-    let realcoatnum = calcRealCoatnum();
-    let retv = realcoatnum==1 ? _no : (Math.ceil(_no / realcoatnum));
-
-    return retv;
-});
-
 const doChangeCurgame = async (_no) => {
-    let realshiainum = calcRealshiaiNum(_no);
+    let realshiainum = calcRealshiaiNum(_no,
+                                        gameSetting.value.dobules_flg,
+                                        gameSetting.value.player_num,
+                                        gameSetting.coat_num );
     let _gameid = gameid.value;
     
     gameSetting.value.curgame = realshiainum;

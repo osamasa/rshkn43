@@ -98,4 +98,33 @@ const mkgamedb = async() => {
          router.push('/listgame');
     }
 }
+
+const myloginCheck = () => {
+      // ログインチェック
+      if (liff.isLoggedIn()) {
+        isClient.value = liff.isInClient()
+        if(!(userid)) {
+            // プロフィール取得
+            liff.getProfile()
+                .then(profile => {
+                    updateUserid(profile.userId);
+                })
+                .catch((err) => {
+                    console.log('error', err);
+                })
+        }
+      } else {
+          router.push('/');
+      }
+};
+
+onMounted(() => {
+    liff.init({ liffId: runtimeConfig.public.liffId },
+              myloginCheck,
+              errorCallback)    
+});
+const errorCallback = (err)=>{
+    console.log(err);
+};    
+
 </script>
