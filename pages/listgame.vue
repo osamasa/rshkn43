@@ -5,6 +5,9 @@
   <div v-if="vtoggle==1">
     <ListGameUsers :users-list="users" @update-game-users="doUpdateGameUsers" @cancel-game-users="doCancel" />
   </div>
+  <div v-if="vtoggle==2">
+    <ShowReslut :game-list="games" :game-users="users" :game-setting="gameSetting" />
+  </div>
   <v-layout class="overflow-visible" style="height: 56px;">
     <v-bottom-navigation
       v-model="vtoggle"
@@ -125,7 +128,7 @@ const doChangeCurgame = async (_no) => {
     }
 };
 
-const doUpdatePlayer = async(_gameid,_usePlayerpos,_chPlayerNo) => {
+const doUpdatePlayer = async(_gameid,_usePlayerPos,_chPlayerNo) => {
     let _rerodGameid = _gameid;
     let _playername = 'player_' + _usePlayerPos;
     let newValue = _chPlayerNo;

@@ -147,10 +147,8 @@ const props = defineProps({
 const emit = defineEmits(
     ['update-player', 'change-curgame', 'add-playdb', 'update-game-score']
 )
-const gameDobulesflg=ref(true);
 const curgame = ref(0);
 
-const vtoggle = ref(0);
 const dlgFirstMenu = ref(false);
 const dlgSecondMenu = ref(false);
 const dlgThridMenu = ref(false);
@@ -193,13 +191,13 @@ const getCurColor = computed(()=>(_game_no) => {
 });
 
 const getCurUserNo = computed(()=>() => {
-    let pgame = props.gamesList.value.filter((game) => {return(game.id === d_gameid.value)});
+    let pgame = props.gameList.filter((game) => {return(game.id === d_gameid.value)});
     return pgame[0]['player_' + usePlayerPos.value];
 });
 
 const getCurShiainum = computed(()=>() => {
-    let pgame = props.gamesList.value.filter((game) => {return(game.id === d_gameid.value)});
-    return calcRealshiaiNum(pgame[0].game_no);
+    let pgame = props.gameList.filter((game) => {return(game.id === d_gameid.value)});
+    return calcRealshiaiNum(pgame[0].game_no,props.gameSetting.dobules_flg,props.gameSetting.player_num,props.gameSetting.coat_num);
 });
 
 const getPlayearsList = computed(() =>() => {
