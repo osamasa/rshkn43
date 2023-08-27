@@ -20,7 +20,6 @@ const router = useRouter();
 const islogin = ref(false);
 const isClient = ref(false);
 const { userid, updateUserid } = useUserid();
-const { gameid, updateGameid } = useGameid();
 
 const myloginCheck = () => {
       // ログインチェック
@@ -83,9 +82,7 @@ const recover = async () => {
         if(error) {
             console.log(error)
         } else {
-            console.log(data.id);
-            updateGameid(data.id);
-            router.push('/listgame')
+            router.push('/'+ data.id)
         }
     }
 };

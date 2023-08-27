@@ -12,17 +12,3 @@ export const useUserid = () => {
         updateUserid: updateUserid(userid),
     }
 };
-export const useGameid = () => {
-    // stateの定義
-    const gameid: ref<numeric> = useState('gameid', () => 0)
-
-    // stateの更新処理
-    const updateGameid = (gameid: ref<numeric>) => (value: ref<numeric>) => {
-       gameid.value = value;
-    }
-
-    return {
-        gameid: readonly(gameid), 
-        updateGameid: updateGameid(gameid),
-    }
-}

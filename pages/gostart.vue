@@ -65,12 +65,10 @@ const runtimeConfig = useRuntimeConfig();
 const router = useRouter();
 
 const { userid, updateUserid } = useUserid();
-const { gameid, updateGameid } = useGameid();
 
 const v_coatnum = ref(1);
 const v_person = ref(6);
 const v_doblesflg = ref(true);
-
 
 const gameName = computed(() => {
   if(v_doblesflg.value == true)
@@ -94,8 +92,7 @@ const mkgamedb = async() => {
         })
     if (error) console.error(error)
     else {
-         updateGameid(data);
-         router.push('/listgame');
+        router.push('/' + data);
     }
 }
 

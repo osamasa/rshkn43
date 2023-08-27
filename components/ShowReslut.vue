@@ -90,7 +90,6 @@ onMounted(()=>{
         let playe_2 = Number ( rec.player_2 ) - 1;
         let playe_3 = Number ( rec.player_3 ) - 1;
         let playe_4 = Number ( rec.player_4 ) - 1;
-        console.log(playe_1,playe_2,playe_3,playe_4,Number(rec.score_1),Number(rec.score_2));
         if(!((Number(rec.score_1) == 0) && (Number(rec.score_2) == 0))) {
             
             if(Number(rec.score_1) == Number(rec.score_2)) {

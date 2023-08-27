@@ -8,6 +8,9 @@
   <div v-if="vtoggle==2">
     <ShowReslut :game-list="games" :game-users="users" :game-setting="gameSetting" />
   </div>
+  <div v-if="vtoggle==3">
+    <ShareGame />
+  </div>  
   <v-layout class="overflow-visible" style="height: 56px;">
     <v-bottom-navigation
       v-model="vtoggle"
@@ -26,7 +29,7 @@
         <v-icon>mdi-table-clock</v-icon>
         <span>結果</span>
       </v-btn>
-      <v-btn>
+      <v-btn v-if="isSwhoShareTag">
         <v-icon>mdi-share-variant</v-icon>
         <span>共有</span>
       </v-btn>      
@@ -34,14 +37,18 @@
   </v-layout>
 </template>
 <script setup>
-const supabase = useSupabaseClient();
-const { gameid } = useGameid();
+  import liff from '@line/liff';
+  const supabase = useSupabaseClient();
+  const runtimeConfig = useRuntimeConfig();
+  const router = useRoute();
+const gameid = ref( router.params.gameid );
 
 const vtoggle = ref(0);
 const games = ref([]);
 const users = ref([]);
 const gameSetting = ref({});
 const gameRecord = ref();
+const isSwhoShareTag = ref(false);
 
 const zeroPadding = (NUM, LEN) => {
     return ( Array(LEN).join('0') + NUM ).slice( -LEN );
@@ -206,12 +213,32 @@ const doCancel = () => {
     vtoggle.value=0;
 }
 
-onMounted(()=>{
-    let channel1 = zeroPadding(gameid.value,10);
-    
+onMounted(() => {
+    liff.init({ liffId: runtimeConfig.public.liffId },
+              myloginCheck,
+              errorCallback)    
+});
+
+const myloginCheck = () => {
     readfirst();
     readsecond();
-    readcurgame();
+    readcurgame();    
+    if(liff.isLoggedIn()) {
+        liff.getProfile()
+            .then(profile => {
+                if(profile.userId === gameSetting.value.userid) {
+                    isSwhoShareTag.value=true;
+                }
+            })}
+    doSubscribed();
+};
+
+const errorCallback = (err)=>{
+    console.log(err);
+};    
+
+const doSubscribed = ()=> {
+    let channel1 = zeroPadding(gameid.value,10);   
     gameRecord.value = supabase.channel(channel1)
           .on('postgres_changes',
               { event: 'UPDATE',
@@ -261,7 +288,7 @@ onMounted(()=>{
                 users.value.sort((a,b) => a.id - b.id);
             })
         .subscribe()
-})
+}
 
 const untrackPresence = async () => {
   const presenceUntrackStatus = await gameRecord.value.untrack();
