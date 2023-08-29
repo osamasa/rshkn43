@@ -19,6 +19,8 @@
     "@line/liff": "^2.22.2",
     "@mdi/font": "^7.2.96",
     "@nuxtjs/dotenv": "^1.4.1",
+    "qrcode": "^1.5.3",
+    "qrcode-reader-vue3": "^3.1.2",
     "sass": "^1.65.1",
     "vite-plugin-vuetify": "^1.0.2",
     "vuetify": "^3.3.12"

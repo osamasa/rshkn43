@@ -9,7 +9,7 @@
     <ShowReslut :game-list="games" :game-users="users" :game-setting="gameSetting" />
   </div>
   <div v-if="vtoggle==3">
-    <ShareGame />
+    <img :src=imgdata />
   </div>  
   <v-layout class="overflow-visible" style="height: 56px;">
     <v-bottom-navigation
@@ -42,6 +42,7 @@
   const runtimeConfig = useRuntimeConfig();
   const router = useRoute();
 const gameid = ref( router.params.gameid );
+import QRCode from 'qrcode';
 
 const vtoggle = ref(0);
 const games = ref([]);
@@ -49,6 +50,7 @@ const users = ref([]);
 const gameSetting = ref({});
 const gameRecord = ref();
 const isSwhoShareTag = ref(false);
+const imgdata = ref('');
 
 const zeroPadding = (NUM, LEN) => {
     return ( Array(LEN).join('0') + NUM ).slice( -LEN );
@@ -214,9 +216,17 @@ const doCancel = () => {
 }
 
 onMounted(() => {
+QRCode.toDataURL('I am a pony!')
+  .then(url => {
+    imgdata.value=url;
+  })
+  .catch(err => {
+    console.error(err)
+  })
+
     liff.init({ liffId: runtimeConfig.public.liffId },
               myloginCheck,
-              errorCallback)    
+              errorCallback);
 });
 
 const myloginCheck = () => {

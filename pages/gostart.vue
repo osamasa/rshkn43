@@ -99,7 +99,6 @@ const mkgamedb = async() => {
 const myloginCheck = () => {
       // ログインチェック
       if (liff.isLoggedIn()) {
-        isClient.value = liff.isInClient()
         if(!(userid)) {
             // プロフィール取得
             liff.getProfile()
