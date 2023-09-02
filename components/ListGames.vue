@@ -246,4 +246,8 @@ const doUpdateGameScore =() => {
 onUpdated(() => {
     curgame.value = props.gameSetting.curgame;
 });
+
+const calcShouhai = computed(() => (s1,s2) => {
+    return _calcShouhai(s1,s2);
+});
 </script>

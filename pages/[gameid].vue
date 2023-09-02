@@ -8,15 +8,40 @@
   <div v-if="vtoggle==2">
     <ShowReslut :game-list="games" :game-users="users" :game-setting="gameSetting" />
   </div>
+  
   <div v-if="vtoggle==3">
-    <img :src=imgdata />
+    <v-container no-gutters>
+      <div>
+        お友達と一緒にスコアをつける場合、お友達にこちらのURLからアクセスしてもらってください。
+      </div>
+      <div>
+        <img :src=imgdata />
+      </div>
+      <div class="mt-1">
+        {{ getMyURL() }}
+      </div>
+      <div v-if="isLiffAppNai()">
+        <div class="mt-2">
+          Lineに送信したい場合は下のボタンを押してください
+        </div>
+        <div class="mt-3">
+          <v-btn @click="sendLiffShareSend()" color="success">スコアをラインに送信</v-btn>
+        </div>
+      </div>
+      <div class="mt-2">
+        スコアを文字列でコピーしたい場合は下のボタンをおしてください
+      </div>
+      <div class="mt-3">
+        <v-btn @click="clickCopyMethod()" color="primary">スコアのコピー</v-btn>
+      </div>    
+    </v-container>
   </div>  
   <v-layout class="overflow-visible" style="height: 56px;">
     <v-bottom-navigation
       v-model="vtoggle"
       active
       bg-color="blue-grey-lighten-2"
-    >
+      >
       <v-btn>
         <v-icon>mdi-play-circle-outline</v-icon>
         ゲーム
@@ -37,11 +62,12 @@
   </v-layout>
 </template>
 <script setup>
-  import liff from '@line/liff';
-  const supabase = useSupabaseClient();
-  const runtimeConfig = useRuntimeConfig();
-  const router = useRoute();
+import liff from '@line/liff';
+const supabase = useSupabaseClient();
+const runtimeConfig = useRuntimeConfig();
+const router = useRoute();
 const gameid = ref( router.params.gameid );
+
 import QRCode from 'qrcode';
 
 const vtoggle = ref(0);
@@ -71,10 +97,10 @@ const readcurgame = async() => {
 
 const readsecond = async() => {
     let { data , error } = await supabase
-       .from('game_user')
-       .select('*')
-       .eq('game_id',gameid.value)
-       .order('player_no', { ascending: true })
+        .from('game_user')
+        .select('*')
+        .eq('game_id',gameid.value)
+        .order('player_no', { ascending: true })
     if(error) {
         console.log(error)
     } else {
@@ -112,13 +138,40 @@ const doChangeCurgame = async (_no) => {
     const { data, error } =  await supabase
           .from('games')
           .update({ 'curgame' : realshiainum ,
-                   'modified_at' : 'now()'})
+                    'modified_at' : 'now()'})
           .eq('id', _gameid)
 	  .select()
     if(error) {
         console.log(error)
     }
 };
+
+const doUpdateGameScore = async(d_gameid, d_score_1, d_score_2) => {
+    let _rerodGameid = d_gameid;
+    let updategamedata = {
+	modified_at : 'now()',
+	score_1 : d_score_1,
+	score_2 : d_score_2
+    };
+    const { data, error } = await supabase
+          .from('game_record')
+          .update(
+              updategamedata
+	  )
+          .eq('id', _rerodGameid )
+          .select()
+    if(error) {
+        console.log(error)
+    } else {
+	let result = games.value.filter((game) => {
+	    return game.id != _rerodGameid;
+	});
+	games.value=result;
+	games.value.push(data[0]);
+	games.value.sort((a,b) => a.id - b.id);
+    }
+}
+
 
 const doUpdatePlayer = async(_gameid,_usePlayerPos,_chPlayerNo) => {
     let _rerodGameid = _gameid;
@@ -147,32 +200,6 @@ const doUpdatePlayer = async(_gameid,_usePlayerPos,_chPlayerNo) => {
     }
 }
 
-const doUpdateGameScore = async(d_gameid, d_score_1, d_score_2) => {
-    let _rerodGameid = d_gameid;
-
-    const { data, error } = await supabase
-          .from('game_record')
-          .update(
-	      {
-	      	  'modified_at' : 'now()',
-		  'score_1' : d_score_1,
-		  'score_2' : d_score_2
-	      }
-	  )
-          .eq('id', _rerodGameid )
-          .select()
-    if(error) {
-        console.log(error)
-    } else {
-	let result = games.value.filter((game) => {
-	    return game.id != _rerodGameid;
-	});
-	games.value=result;
-	games.value.push(data[0]);
-	games.value.sort((a,b) => a.id - b.id);
-    }
-}
-
 const doAddplaydb = async() => {
     let _v_id = gameid.value;
     let _coat_num = gameSetting.value.coat_num;
@@ -187,9 +214,9 @@ const doAddplaydb = async() => {
               _coat_num,
               _dobules_flg,
 	      _last_no
-        });
+          });
     if(error)
-       console.error(error)
+        console.error(error)
     else {
     	games.value.push(...data);
 	games.value.sort((a,b) => a.id - b.id);
@@ -215,24 +242,11 @@ const doCancel = () => {
     vtoggle.value=0;
 }
 
-onMounted(() => {
-QRCode.toDataURL('I am a pony!')
-  .then(url => {
-    imgdata.value=url;
-  })
-  .catch(err => {
-    console.error(err)
-  })
-
-    liff.init({ liffId: runtimeConfig.public.liffId },
-              myloginCheck,
-              errorCallback);
-});
-
 const myloginCheck = () => {
     readfirst();
     readsecond();
     readcurgame();    
+
     if(liff.isLoggedIn()) {
         liff.getProfile()
             .then(profile => {
@@ -240,26 +254,31 @@ const myloginCheck = () => {
                     isSwhoShareTag.value=true;
                 }
             })}
+
     doSubscribed();
 };
 
-const errorCallback = (err)=>{
-    console.log(err);
-};    
+const getMyURL = computed(() =>() => {
+    return window.location.href;
+});
 
-const doSubscribed = ()=> {
+const errorCallback = ((err)=>{
+    console.log(err);
+});    
+
+const doSubscribed = () => {
     let channel1 = zeroPadding(gameid.value,10);   
     gameRecord.value = supabase.channel(channel1)
-          .on('postgres_changes',
-              { event: 'UPDATE',
-                schema: 'public',
-                table:'games',
-                filter: 'id=eq.'+gameid.value
-              },
-              (payload) => {
-                  gameSetting.value = payload.new;
-              })
-          .on('postgres_changes',
+        .on('postgres_changes',
+            { event: 'UPDATE',
+              schema: 'public',
+              table:'games',
+              filter: 'id=eq.'+gameid.value
+            },
+            (payload) => {
+                gameSetting.value = payload.new;
+            })
+        .on('postgres_changes',
             { event: 'INSERT',
               schema: 'public',
               table: 'game_record',
@@ -269,7 +288,7 @@ const doSubscribed = ()=> {
                 games.value.push(payload.new);
                 games.value.sort((a,b) => a.game_no - b.game_no);
             })
-          .on('postgres_changes',
+        .on('postgres_changes',
             { event: 'UPDATE',
               schema: 'public',
               table: 'game_record',
@@ -283,7 +302,7 @@ const doSubscribed = ()=> {
                 games.value.push(payload.new);
                 games.value.sort((a,b) => a.id - b.id);
             })
-          .on('postgres_changes',
+        .on('postgres_changes',
             { event: 'UPDATE',
               schema: 'public',
               table: 'game_user',
@@ -300,13 +319,91 @@ const doSubscribed = ()=> {
         .subscribe()
 }
 
-const untrackPresence = async () => {
-  const presenceUntrackStatus = await gameRecord.value.untrack();
+const untrackPresence = async() => {
+    const presenceUntrackStatus = await gameRecord.value.untrack();
 }
 
-onUnmounted(() => {
+const onUnmounted = async () => {
     if(gameRecord.value) {
         untrackPresence();
     }
+};
+
+const getShoHaiText = () => {
+    let hiduke=new Date(); 
+
+    //年・月・日・曜日を取得する
+    let year = hiduke.getFullYear();
+    let month = hiduke.getMonth()+1;
+    let week = hiduke.getDay();
+    let day = hiduke.getDate();
+    
+    let modelValue = '';
+    let playerRest = [];
+    playerRest = calcPlayerGameResut( users.value,
+                                      games.value,
+                                      gameSetting.value );
+
+    modelValue = modelValue + '本日（' + year + '年' + month + '月' + day + '日) の試合結果です' + "\r\n";
+    modelValue = modelValue + "\r\n";
+    
+    playerRest.forEach((rec) => {
+        modelValue = modelValue + rec.player_no + ': ' + (rec.player_name ? rec.player_name : rec.player_no)+ " さん " + rec.win + " 勝 " + rec.lose + " 負 " + rec.draw + " 分 " + "\r\n";
+    });
+    modelValue = modelValue + "\r\n";
+    games.value.filter(recs=>{return (!(recs.score_1==0 && recs.score_2==0))}).forEach((rec,i) => {
+        modelValue = modelValue + '第' + (i+1) + '試合 '
+        if(gameSetting.value.dobules_flg) {
+            modelValue = modelValue + rec.player_1 + ' ' + rec.player_2 + ' (' + rec.score_1 + ' ' + _calcShouhai(rec.score_1,rec.score_2)+ ') VS ';
+            modelValue = modelValue + rec.player_3 + ' ' + rec.player_4 + ' (' + rec.score_2 + ' ' + _calcShouhai(rec.score_2,rec.score_1) + ")\r\n";
+        } else {
+            modelValue = modelValue + rec.player_1 + ' ' + rec.score_1 + ' ' + _calcShouhai(rec.score_1,rec.score_2) + ' ' + _calcShouhai(rec.score_1,rec.score_2)+ ') VS ';
+            modelValue = modelValue + rec.player_2 + ' ' + rec.score_2 + ' ' + _calcShouhai(rec.score_2,rec.score_1) + ' ' + _calcShouhai(rec.score_2,rec.score_1) + ")\r\n";
+        }
+    });
+
+    modelValue = modelValue + "\r\n--\r\n";
+    modelValue = modelValue + "乱数表君V4.2\r\n";
+    modelValue = modelValue + "https://liff.line.me/2000361330-n0YLlRAm\r\n";
+
+    return modelValue;
+    
+}
+
+const isLiffAppNai = computed(() => ()=> {
+    return (liff.isInClient());
+});
+
+const sendLiffShareSend = () => {
+    let txtValue = getShoHaiText();    
+    liff.sendMessages(txtValue.split(/\r\n/));
+}
+
+const clickCopyMethod = () => {
+    
+    let textarea = document.createElement('textarea');
+    textarea.value = getShoHaiText();
+    textarea.style.top = '-100px';
+    textarea.style.maxHeight = '100px';
+    textarea.style.position = 'absolute';
+    document.body.appendChild(textarea);
+    
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea); 
+};
+
+onMounted(() => {
+    QRCode.toDataURL( window.location.href )
+        .then(url => {
+            imgdata.value=url;
+        })
+        .catch(err => {
+            console.error(err)
+        })
+
+    liff.init({ liffId: runtimeConfig.public.liffId },
+              myloginCheck,
+              errorCallback);
 });
 </script>
