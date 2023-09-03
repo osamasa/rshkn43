@@ -163,6 +163,7 @@ const d_player_3 = ref(0);
 const d_player_4 = ref(0);
 const d_score_1 = ref(0);
 const d_score_2 = ref(0);
+const { loading, updateLoading} = useLoading();
 
 const getUserName = computed(()=> (_player_no) => {
     let a = props.gameUsers.find((e) => e.player_no == _player_no);
@@ -227,7 +228,6 @@ const isOnajigame = computed(()=> (_no) => {
 })
 
 const changeCurGame = (_no) => {
-    curgame.value=_no;
     emit('change-curgame', _no);
 }
 
@@ -249,5 +249,8 @@ onUpdated(() => {
 
 const calcShouhai = computed(() => (s1,s2) => {
     return _calcShouhai(s1,s2);
+});
+onMounted(() => {
+    updateLoading(false);    
 });
 </script>

@@ -20,6 +20,10 @@ const router = useRouter();
 const islogin = ref(false);
 const isClient = ref(false);
 const { userid, updateUserid } = useUserid();
+const { loading, updateLoading} = useLoading();
+
+updateLoading(true);
+
 
 const myloginCheck = () => {
       // ログインチェック
@@ -29,10 +33,10 @@ const myloginCheck = () => {
         liff.getProfile()
               .then(profile => {
                   updateUserid(profile.userId);
-          })
-          .catch((err) => {
-            console.log('error', err);
-          })
+              })
+              .catch((err) => {
+                  console.log('error', err);
+              })
       } else {
           router.push('/');
       }
@@ -41,7 +45,8 @@ const myloginCheck = () => {
 onMounted(() => {
     liff.init({ liffId: runtimeConfig.public.liffId },
               myloginCheck,
-              errorCallback)    
+              errorCallback);
+    updateLoading(false);    
 });
 
 
@@ -51,21 +56,26 @@ const errorCallback = (err)=>{
 
 const logout = () => {
     liff.logout();
+    updateUserid('');
+    router.push('/');    
 };
 
 const gostart = async () => {
+    updateLoading(true);
     const { data, error } = await supabase
        .from('users')
        .upsert({ loginid : userid.value })
        .select();
     if(error) {
         console.log(error)
+        updateLoading(false);
         // なにもしない
     }
     router.push('/gostart');
 };
 
 const recover = async () => {
+    updateLoading(true);
     const { data, error } = await supabase
           .from('users')
           .select('id')
@@ -73,14 +83,16 @@ const recover = async () => {
           .single()
     if(error) {
         console.log(error)
+        updateLoading(false);        
     } else {
         const { data, error } = await supabase
               .from('games')
               .select('id')
               .eq('userid',userid.value)
-              .single()
+              .single()        
         if(error) {
             console.log(error)
+            updateLoading(false);
         } else {
             router.push('/'+ data.id)
         }

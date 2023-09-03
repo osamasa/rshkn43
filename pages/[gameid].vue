@@ -1,15 +1,15 @@
 <template>
-  <div v-if="vtoggle==0">
+  <div class="mt-16" v-if="vtoggle==0">
     <ListGames :game-list="games" :game-users="users" :game-setting="gameSetting" @update-player="doUpdatePlayer" @change-curgame="doChangeCurgame" @add-playdb="doAddplaydb" @update-game-score="doUpdateGameScore"/>
   </div>
-  <div v-if="vtoggle==1">
+  <div class="mt-16" v-if="vtoggle==1">
     <ListGameUsers :users-list="users" @update-game-users="doUpdateGameUsers" @cancel-game-users="doCancel" />
   </div>
-  <div v-if="vtoggle==2">
+  <div class="mt-16" v-if="vtoggle==2">
     <ShowReslut :game-list="games" :game-users="users" :game-setting="gameSetting" />
   </div>
   
-  <div v-if="vtoggle==3">
+  <div class="mt-16" v-if="vtoggle==3">
     <v-container no-gutters>
       <div>
         お友達と一緒にスコアをつける場合、お友達にこちらのURLからアクセスしてもらってください。
@@ -67,6 +67,8 @@ const supabase = useSupabaseClient();
 const runtimeConfig = useRuntimeConfig();
 const router = useRoute();
 const gameid = ref( router.params.gameid );
+const { loading, updateLoading} = useLoading();
+const { userid, updateUserid } = useUserid();
 
 import QRCode from 'qrcode';
 
@@ -77,6 +79,8 @@ const gameSetting = ref({});
 const gameRecord = ref();
 const isSwhoShareTag = ref(false);
 const imgdata = ref('');
+
+updateLoading(true);
 
 const zeroPadding = (NUM, LEN) => {
     return ( Array(LEN).join('0') + NUM ).slice( -LEN );
@@ -217,13 +221,10 @@ const doAddplaydb = async() => {
           });
     if(error)
         console.error(error)
-    else {
-    	games.value.push(...data);
-	games.value.sort((a,b) => a.id - b.id);
-    }
 }
 
 const doUpdateGameUsers = (_users) => {
+    updateLoading(true);
     _users.value.forEach(async (_user) => {
         let _player_name = _user.player_name;
         let _user_id = _user.id;
@@ -234,6 +235,8 @@ const doUpdateGameUsers = (_users) => {
                 'modified_at' : 'now()'})
             .eq('id', _user_id)
     });
+    updateLoading(false);
+    
     users.value=[..._users.value];
     vtoggle.value=0;
 }
@@ -250,6 +253,7 @@ const myloginCheck = () => {
     if(liff.isLoggedIn()) {
         liff.getProfile()
             .then(profile => {
+                updateUserid(profile.userId);
                 if(profile.userId === gameSetting.value.userid) {
                     isSwhoShareTag.value=true;
                 }
@@ -264,6 +268,7 @@ const getMyURL = computed(() =>() => {
 
 const errorCallback = ((err)=>{
     console.log(err);
+    updateLoading(false);
 });    
 
 const doSubscribed = () => {
@@ -317,6 +322,7 @@ const doSubscribed = () => {
                 users.value.sort((a,b) => a.id - b.id);
             })
         .subscribe()
+        
 }
 
 const untrackPresence = async() => {
