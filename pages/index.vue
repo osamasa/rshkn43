@@ -1,5 +1,5 @@
 <template>
-<div class="ml-4 mt-16">    
+<div class="ml-4 mt-8">    
   <v-btn color="info" @click="gosetting">ログインして乱数表開始</v-btn>
 </div>
 </template>
@@ -10,6 +10,7 @@ const runtimeConfig = useRuntimeConfig();
 const router = useRouter();
 const islogin = ref('false');
 const { loading, updateLoading} = useLoading();
+const { updateErrorMsg } = useErrorMsg();
 
 const successCallback = ()=> {
     updateLoading(true);    
@@ -22,8 +23,8 @@ const successCallback = ()=> {
     }
 };
 
-const errorCallback = (err)=>{
-    console.log(err);
+const errorCallback = (error)=>{
+    updateErrorMsg('[index.vue][ERR401]' + error);
 };
 
 onMounted(() => {

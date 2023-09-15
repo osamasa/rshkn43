@@ -34,3 +34,37 @@ export const useLoading = () => {
         updateLoading: updateLoading(loading),
     }
 };
+
+
+export const useErrorMsg = () => {
+  const errormsg: ref<boolean> = useState('errormsg',()=> '' );
+  const iserrormsg: ref<boolean> = useState('iserrormsg',()=> false );
+
+    // stateの更新処理
+    const updateErrorMsg = (errormsg: ref<string>) => (value: ref<string>) => {
+        if(value === "")
+            iserrormsg.value=false;
+        else {
+            errormsg.value = value;
+            console.log(errormsg.value)
+            iserrormsg.value=true;
+        }
+        
+    }
+
+    return {
+        errormsg: readonly(errormsg),
+        iserrormsg: readonly(iserrormsg),
+        updateErrorMsg: updateErrorMsg( errormsg ),
+    }
+};
+
+export const useSnackBarText = () => {
+  const snackbartext = useState<string>('snackbartext', () => '')
+  return { snackbartext }
+}
+
+export const useStateBarBoolean = () => {
+  const snackbarboolean = useState<boolean>('snackbarboolean', () => false)
+  return { snackbarboolean }
+}

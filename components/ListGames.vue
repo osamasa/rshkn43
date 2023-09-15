@@ -251,6 +251,5 @@ const calcShouhai = computed(() => (s1,s2) => {
     return _calcShouhai(s1,s2);
 });
 onMounted(() => {
-    updateLoading(false);    
 });
 </script>

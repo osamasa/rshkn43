@@ -1,11 +1,11 @@
 <template>
-  <div class="mt-16" v-if="vtoggle==0">
+  <div class="mt-0" v-if="vtoggle==0">
     <ListGames :game-list="games" :game-users="users" :game-setting="gameSetting" @update-player="doUpdatePlayer" @change-curgame="doChangeCurgame" @add-playdb="doAddplaydb" @update-game-score="doUpdateGameScore"/>
   </div>
-  <div class="mt-16" v-if="vtoggle==1">
+  <div class="mt-0" v-if="vtoggle==1">
     <ListGameUsers :users-list="users" @update-game-users="doUpdateGameUsers" @cancel-game-users="doCancel" />
   </div>
-  <div class="mt-16" v-if="vtoggle==2">
+  <div class="mt-0" v-if="vtoggle==2">
     <ShowReslut :game-list="games" :game-users="users" :game-setting="gameSetting" />
   </div>
   
@@ -69,6 +69,9 @@ const router = useRoute();
 const gameid = ref( router.params.gameid );
 const { loading, updateLoading} = useLoading();
 const { userid, updateUserid } = useUserid();
+const { updateErrorMsg } = useError();
+const { snackbartext } = useSnackBarText();
+const { snackbarboolean } = useStateBarBoolean();
 
 import QRCode from 'qrcode';
 
@@ -93,7 +96,7 @@ const readcurgame = async() => {
         .eq('id',gameid.value)
         .single()
     if(error) {
-        console.log(error)
+        updateErrorMsg('[gameid.vue][ERR201]' + error);
     } else {
         gameSetting.value = data;
     }
@@ -106,7 +109,7 @@ const readsecond = async() => {
         .eq('game_id',gameid.value)
         .order('player_no', { ascending: true })
     if(error) {
-        console.log(error)
+        updateErrorMsg('[gameid.vue][ERR202]' + error);
     } else {
         users.value = data.filter(elm => {
             if(elm.player_name==='NULL') {
@@ -124,7 +127,7 @@ const readfirst = async() => {
         .eq('game_id',gameid.value)
         .order('game_no', { ascending: true })    
     if(error) {
-        console.log(error)
+        updateErrorMsg('[gameid.vue][ERR203]' + error);
     } else {
         games.value = data;
     }
@@ -146,7 +149,7 @@ const doChangeCurgame = async (_no) => {
           .eq('id', _gameid)
 	  .select()
     if(error) {
-        console.log(error)
+        updateErrorMsg('[gameid.vue][ERR204]' + error);
     }
 };
 
@@ -165,7 +168,7 @@ const doUpdateGameScore = async(d_gameid, d_score_1, d_score_2) => {
           .eq('id', _rerodGameid )
           .select()
     if(error) {
-        console.log(error)
+        updateErrorMsg('[gameid.vue][ERR205]' + error);
     } else {
 	let result = games.value.filter((game) => {
 	    return game.id != _rerodGameid;
@@ -193,7 +196,7 @@ const doUpdatePlayer = async(_gameid,_usePlayerPos,_chPlayerNo) => {
           .eq('id', _rerodGameid )
           .select()
     if(error) {
-        console.log(error)
+        updateErrorMsg('[gameid.vue][ERR206]' + error);
     } else {
 	let result = games.value.filter((game) => {
 	    return game.id != _rerodGameid;
@@ -220,7 +223,7 @@ const doAddplaydb = async() => {
 	      _last_no
           });
     if(error)
-        console.error(error)
+        updateErrorMsg('[gameid.vue][ERR207]' + error);
 }
 
 const doUpdateGameUsers = (_users) => {
@@ -234,6 +237,8 @@ const doUpdateGameUsers = (_users) => {
                 'player_name' : _player_name,
                 'modified_at' : 'now()'})
             .eq('id', _user_id)
+        if(error)
+            updateErrorMsg('[gameid.vue][ERR208]' + error);
     });
     updateLoading(false);
     
@@ -411,5 +416,9 @@ onMounted(() => {
     liff.init({ liffId: runtimeConfig.public.liffId },
               myloginCheck,
               errorCallback);
+    snackbarboolean.value=true;
+    snackbartext.value="乱数表設定終了"
+    updateLoading(false);    
 });
 </script>
+
