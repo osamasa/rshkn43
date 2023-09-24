@@ -1,14 +1,14 @@
 <template>
   <v-container class="pa-0" v-for="game in props.gameList">
-    <v-row @click="changeCurGame(game.game_no);" class="pl-2 pt-1 pb-1 bg-grey-lighten-2" no-gutters v-if="isOnajigame(game.game_no)>0">第{{isOnajigame(game.game_no)}}試合</v-row>
-    <v-row no-gutters :class="getCurColor(game.game_no)">
+    <v-row @click="changeCurGame(game.game_no,curgame);" class="pl-2 pt-1 pb-1 bg-grey-lighten-2" no-gutters v-if="isOnajigame(game.game_no)>0">第{{isOnajigame(game.game_no)}}試合</v-row>
+    <v-row no-gutters :class="getCurColor(game.game_no,curgame)">
       <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=1;chPlayerNo=game.player_1;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_1}}</v-row><v-row class="pb-1">{{ getUserName( game.player_1 ) }}</v-row></v-btn></v-col>
       <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=2;chPlayerNo=game.player_2;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_2}}</v-row><v-row class="pb-1">{{ getUserName( game.player_2 ) }}</v-row></v-btn></v-col>
       <v-col @click='changeCurGame(game.game_no);' cols="1">&nbsp;</v-col>
       <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=3;chPlayerNo=game.player_3;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_3}}</v-row><v-row class="pb-1">{{ getUserName( game.player_3 ) }}</v-row></v-btn></v-col>
       <v-col class="ma-1"><v-btn block size="large" variant="outlined" @click="d_gameid=game.id;usePlayerPos=1;chPlayerNo=game.player_4;dlgFirstMenu=!dlgFirstMenu;d_player_1=game.player_1;d_player_2=game.player_2;d_player_3=game.player_3;d_player_4=game.player_4;d_score_1=game.score_1;d_score_2=game.score_2"><v-row class="pb-3">{{game.player_4}}</v-row><v-row class="pb-1">{{ getUserName( game.player_4 ) }}</v-row></v-btn></v-col>
     </v-row>
-    <v-row @click="changeCurGame(game.game_no)" no-gutters :class="getCurColor(game.game_no)" v-if="!(game.score_1==0 && game.score_2==0)">
+    <v-row @click="changeCurGame(game.game_no)" no-gutters :class="getCurColor(game.game_no,curgame)" v-if="!(game.score_1==0 && game.score_2==0)">
       <v-col class="text-center">{{ calcShouhai(game.score_1, game.score_2)}}{{ game.score_1 }}</v-col>
       <v-col class="text-center">{{ calcShouhai(game.score_2, game.score_1)}}{{ game.score_2 }}</v-col>	  
     </v-row>	
@@ -181,10 +181,9 @@ const getUserName = computed(()=> (_player_no) => {
         return ''
 })
 
-const getCurColor = computed(()=>(_game_no) => {
+const getCurColor = computed(()=>(_game_no,_curgame) => {
     let realcoatnum = calcRealCoatnum();
-    if(((curgame.value-1) * realcoatnum < _game_no) && (curgame.value*realcoatnum+1 > _game_no)) {
-        
+    if(((_curgame-1) * realcoatnum < _game_no) && (_curgame*realcoatnum+1 > _game_no)) {
         return 'bg-yellow-lighten-4';
     } else {
         return '';

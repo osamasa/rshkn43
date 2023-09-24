@@ -9,7 +9,7 @@
     <ShowReslut :game-list="games" :game-users="users" :game-setting="gameSetting" />
   </div>
   
-  <div class="mt-16" v-if="vtoggle==3">
+  <div class="mt-0" v-if="vtoggle==3">
     <v-container no-gutters>
       <div>
         お友達と一緒にスコアをつける場合、お友達にこちらのURLからアクセスしてもらってください。
@@ -139,9 +139,7 @@ const doChangeCurgame = async (_no) => {
                                         gameSetting.value.player_num,
                                         gameSetting.coat_num );
     let _gameid = gameid.value;
-    
-    gameSetting.value.curgame = realshiainum;
-    
+
     const { data, error } =  await supabase
           .from('games')
           .update({ 'curgame' : realshiainum ,
@@ -265,7 +263,6 @@ const myloginCheck = () => {
         liff.getProfile()
             .then(profile => {
                 updateUserid(profile.userId);
-                console.log(profile.userId , gameSetting.value.loginid);
                 if(profile.userId === gameSetting.value.loginid) {
                     isSwhoShareTag.value=true;
                 }
@@ -293,7 +290,8 @@ const doSubscribed = () => {
               filter: 'id=eq.'+gameid.value
             },
             (payload) => {
-                gameSetting.value = payload.new;
+                gameSetting.value = { ...payload.new }
+                gameSetting.value.loginid = userid.value
             })
         .on('postgres_changes',
             { event: 'INSERT',
@@ -408,7 +406,9 @@ const clickCopyMethod = () => {
     
     textarea.select();
     document.execCommand('copy');
-    document.body.removeChild(textarea); 
+    document.body.removeChild(textarea);
+    snackbarboolean.value=true;
+    snackbartext.value="コピー完了"     
 };
 
 onMounted(() => {
