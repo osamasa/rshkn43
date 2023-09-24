@@ -28,6 +28,15 @@
           <v-btn @click="sendLiffShareSend()" color="success">スコアをラインに送信</v-btn>
         </div>
       </div>
+<!--      <div v-else>
+        <div class="mt-2">
+          Lineに送信したい場合は下のボタンを押してください
+        </div>
+        <div class="mt-3">
+          <v-btn @click="sendPickSend()" color="success">スコアをラインに送信</v-btn>
+        </div>
+    </div>
+-->
       <div class="mt-2">
         スコアを文字列でコピーしたい場合は下のボタンをおしてください
       </div>
@@ -54,7 +63,7 @@
         <v-icon>mdi-table-clock</v-icon>
         <span>結果</span>
       </v-btn>
-      <v-btn v-if="isSwhoShareTag">
+      <v-btn>
         <v-icon>mdi-share-variant</v-icon>
         <span>共有</span>
       </v-btn>      
@@ -69,7 +78,7 @@ const router = useRoute();
 const gameid = ref( router.params.gameid );
 const { loading, updateLoading} = useLoading();
 const { userid, updateUserid } = useUserid();
-const { updateErrorMsg } = useError();
+const { updateErrorMsg } = useErrorMsg();
 const { snackbartext } = useSnackBarText();
 const { snackbarboolean } = useStateBarBoolean();
 
@@ -96,7 +105,7 @@ const readcurgame = async() => {
         .eq('id',gameid.value)
         .single()
     if(error) {
-        updateErrorMsg('[gameid.vue][ERR201]' + error);
+        updateErrorMsg('[gameid.vue][ERR201]' +  error.code + ' ' + error.message);
     } else {
         gameSetting.value = data;
     }
@@ -109,7 +118,7 @@ const readsecond = async() => {
         .eq('game_id',gameid.value)
         .order('player_no', { ascending: true })
     if(error) {
-        updateErrorMsg('[gameid.vue][ERR202]' + error);
+        updateErrorMsg('[gameid.vue][ERR202]' +  error.code + ' ' + error.message);
     } else {
         users.value = data.filter(elm => {
             if(elm.player_name==='NULL') {
@@ -127,7 +136,7 @@ const readfirst = async() => {
         .eq('game_id',gameid.value)
         .order('game_no', { ascending: true })    
     if(error) {
-        updateErrorMsg('[gameid.vue][ERR203]' + error);
+        updateErrorMsg('[gameid.vue][ERR203]' +  error.code + ' ' + error.message);
     } else {
         games.value = data;
     }
@@ -137,8 +146,9 @@ const doChangeCurgame = async (_no) => {
     let realshiainum = calcRealshiaiNum(_no,
                                         gameSetting.value.dobules_flg,
                                         gameSetting.value.player_num,
-                                        gameSetting.coat_num );
+                                        gameSetting.value.coat_num );
     let _gameid = gameid.value;
+
 
     const { data, error } =  await supabase
           .from('games')
@@ -147,7 +157,7 @@ const doChangeCurgame = async (_no) => {
           .eq('id', _gameid)
 	  .select()
     if(error) {
-        updateErrorMsg('[gameid.vue][ERR204]' + error);
+        updateErrorMsg('[gameid.vue][ERR204]' +  error.code + ' ' + error.message);
     }
 };
 
@@ -166,7 +176,7 @@ const doUpdateGameScore = async(d_gameid, d_score_1, d_score_2) => {
           .eq('id', _rerodGameid )
           .select()
     if(error) {
-        updateErrorMsg('[gameid.vue][ERR205]' + error);
+        updateErrorMsg('[gameid.vue][ERR205]' +  error.code + ' ' + error.message);
     } else {
 	let result = games.value.filter((game) => {
 	    return game.id != _rerodGameid;
@@ -196,7 +206,7 @@ const doUpdatePlayer = async(_gameid,_usePlayerPos,_chPlayerNo) => {
           .eq('id', _rerodGameid )
           .select()
     if(error) {
-        updateErrorMsg('[gameid.vue][ERR206]' + error);
+        updateErrorMsg('[gameid.vue][ERR206]' +  error.code + ' ' + error.message);
     } else {
 	let result = games.value.filter((game) => {
 	    return game.id != _rerodGameid;
@@ -225,7 +235,7 @@ const doAddplaydb = async() => {
 	      _last_no
           });
     if(error)
-        updateErrorMsg('[gameid.vue][ERR207]' + error);
+        updateErrorMsg('[gameid.vue][ERR207]' + error.code + ' ' + error.message);
 }
 
 const doUpdateGameUsers = (_users) => {
@@ -240,7 +250,7 @@ const doUpdateGameUsers = (_users) => {
                 'modified_at' : 'now()'})
             .eq('id', _user_id)
         if(error)
-            updateErrorMsg('[gameid.vue][ERR208]' + error);
+            updateErrorMsg('[gameid.vue][ERR208]' + error.code + ' ' + error.message);
     });
     updateLoading(false);
     
@@ -263,7 +273,7 @@ const myloginCheck = () => {
         liff.getProfile()
             .then(profile => {
                 updateUserid(profile.userId);
-                if(profile.userId === gameSetting.value.loginid) {
+                if(profile.userId === userid.value) {
                     isSwhoShareTag.value=true;
                 }
             })}
@@ -393,6 +403,15 @@ const isLiffAppNai = computed(() => ()=> {
 const sendLiffShareSend = () => {
     let txtValue = getShoHaiText();    
     liff.sendMessages(txtValue.split(/\r\n/));
+}
+
+const sendPickSend = () => {
+    let txtValue = getShoHaiText();
+
+    if(!liff.isLoggedIn()) {
+        liff.login();
+    }
+    liff.shareTargetPicker(txtValue.split(/\r\n/));
 }
 
 const clickCopyMethod = () => {
