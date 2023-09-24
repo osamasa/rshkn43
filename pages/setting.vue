@@ -81,7 +81,7 @@ const hasHistoryFnc = async (_userid) => {
 
 const gostart = async () => {
     updateLoading(true);
-    const { data, error } = await supabase
+    const { count ,data, error } = await supabase
           .from('users')
           .select('*', { count: 'exact' })
           .eq('loginid', userid.value)
@@ -111,14 +111,14 @@ const recover = async () => {
     updateLoading(true);
     const { data, error } = await supabase
           .from('games_view')
-          .select('gameid')
+          .select('id')
           .eq('loginid',userid.value)
           .single()
     if(error) {
         updateErrorMsg('[setting.vue][ERR105]' + error.code + ' ' + error.message);
         updateLoading(false);        
     } else {
-        router.push('/'+ data.gameid)
+        router.push('/'+ data.id)
     }
 };
 

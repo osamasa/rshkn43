@@ -17,8 +17,8 @@
     <v-main>
       <slot />
     </v-main>
-    <v-footer >
-      <div class="px-4 py-2 bg-black text-center w-100">
+    <v-footer class="bg-white">
+      <div class="px-4 py-2 text-center w-100">
         {{ new Date().getFullYear() }} — <strong>(C)OSAMASA</strong>
       </div>
     </v-footer>

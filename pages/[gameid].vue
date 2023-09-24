@@ -91,7 +91,7 @@ const zeroPadding = (NUM, LEN) => {
 
 const readcurgame = async() => {
     let { data , error } = await supabase
-        .from('games')
+        .from('games_view')
         .select('*')
         .eq('id',gameid.value)
         .single()
@@ -176,6 +176,8 @@ const doUpdateGameScore = async(d_gameid, d_score_1, d_score_2) => {
 	games.value=result;
 	games.value.push(data[0]);
 	games.value.sort((a,b) => a.id - b.id);
+        snackbarboolean.value=true;
+        snackbartext.value="スコア更新完了"
     }
 }
 
@@ -204,6 +206,8 @@ const doUpdatePlayer = async(_gameid,_usePlayerPos,_chPlayerNo) => {
 	games.value=result;
 	games.value.push(data[0]);
 	games.value.sort((a,b) => a.id - b.id);
+        snackbarboolean.value=true;
+        snackbartext.value="プレイヤー変更完了"
     }
 }
 
@@ -244,6 +248,8 @@ const doUpdateGameUsers = (_users) => {
     
     users.value=[..._users.value];
     vtoggle.value=0;
+    snackbarboolean.value=true;
+    snackbartext.value="メンバー設定完了" 
 }
 
 const doCancel = () => {
@@ -259,7 +265,8 @@ const myloginCheck = () => {
         liff.getProfile()
             .then(profile => {
                 updateUserid(profile.userId);
-                if(profile.userId === gameSetting.value.userid) {
+                console.log(profile.userId , gameSetting.value.loginid);
+                if(profile.userId === gameSetting.value.loginid) {
                     isSwhoShareTag.value=true;
                 }
             })}
@@ -416,9 +423,9 @@ onMounted(() => {
     liff.init({ liffId: runtimeConfig.public.liffId },
               myloginCheck,
               errorCallback);
+    updateLoading(false);
     snackbarboolean.value=true;
-    snackbartext.value="乱数表設定終了"
-    updateLoading(false);    
+    snackbartext.value="乱数表設定終了"    
 });
 </script>
 
