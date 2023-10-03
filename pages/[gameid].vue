@@ -410,10 +410,11 @@ const isLiffAppNai = computed(() => ()=> {
 
 const sendLiffShareSend = () => {
     let txtValue = getShoHaiText();    
-    liff.sendMessages({
+    liff.sendMessages([{
         type: "text",
         text: txtValue
-    })
+        }]
+    )
         .then(() => {
     snackbarboolean.value=true;
     snackbartext.value="送信完了"
