@@ -6,7 +6,8 @@
     "dev:https": "nuxt dev --https --ssl-cert ./localhost.pem --ssl-key ./localhost-key.pem",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "netlify": "netlify"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
