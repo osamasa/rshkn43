@@ -411,7 +411,7 @@ const isLiffAppNai = computed(() => ()=> {
 const sendLiffShareSend = () => {
     let txtValue = getShoHaiText();    
     liff.sendMessages({
-        type: "text",
+        type: "array",
         text: txtValue.split(/\r\n/)
     })
         .then(() => {
