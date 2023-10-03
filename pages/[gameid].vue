@@ -44,7 +44,7 @@
       <div class="mt-3">
         <v-btn @click="clickCopyMethod()" color="primary">スコアのコピー</v-btn>
       </div>
-    </div>
+      </div>
     </v-container>
   </div>  
   <v-layout class="overflow-visible" style="height: 56px;">
@@ -407,7 +407,7 @@ const getShoHaiText = () => {
 }
 
 const isLiffAppNai = computed(() => ()=> {
-    return _isLiffAppNai(liff);
+    return liff.isInClient();
 });
 
 const sendLiffShareSend = () => {

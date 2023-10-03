@@ -57,7 +57,7 @@ const logout = () => {
       router.push('/');      
 };
 const isNotLiffAppNai = computed(() => ()=> {
-    return (!(_isLiffAppNai(liff)));
+    return (!(liff.isInClient()));
 });
 </script>
 
