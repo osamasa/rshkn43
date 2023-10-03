@@ -314,6 +314,7 @@ const doSubscribed = () => {
                 updateLoading(true);
                 games.value.push(payload.new);
                 games.value.sort((a,b) => a.game_no - b.game_no);
+                updateLoading(false);                
             })
         .on('postgres_changes',
             { event: 'UPDATE',
@@ -329,6 +330,7 @@ const doSubscribed = () => {
                 games.value = result;
                 games.value.push(payload.new);
                 games.value.sort((a,b) => a.id - b.id);
+                updateLoading(false);                                
             })
         .on('postgres_changes',
             { event: 'UPDATE',
@@ -337,12 +339,16 @@ const doSubscribed = () => {
               filter: 'game_id=eq.'+gameid.value
             },
             (payload) => {
+                updateLoading(true);                
+            
                 let result = users.value.filter((user) => {
                     return (user.id != payload.old.id);
                 });
                 users.value = result;
                 users.value.push(payload.new);
                 users.value.sort((a,b) => a.id - b.id);
+                updateLoading(false);                
+                
             })
         .subscribe()        
 }
