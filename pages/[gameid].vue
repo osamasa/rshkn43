@@ -37,12 +37,14 @@
         </div>
     </div>
 -->
-      <div class="mt-2">
+    <div v-else>
+      <div class="mt-2" >
         スコアを文字列でコピーしたい場合は下のボタンをおしてください
       </div>
       <div class="mt-3">
         <v-btn @click="clickCopyMethod()" color="primary">スコアのコピー</v-btn>
-      </div>    
+      </div>
+    </div>
     </v-container>
   </div>  
   <v-layout class="overflow-visible" style="height: 56px;">
