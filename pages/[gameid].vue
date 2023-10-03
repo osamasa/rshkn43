@@ -411,8 +411,8 @@ const isLiffAppNai = computed(() => ()=> {
 const sendLiffShareSend = () => {
     let txtValue = getShoHaiText();    
     liff.sendMessages({
-        type: "array",
-        text: txtValue.split(/\r\n/)
+        type: "test",
+        text: txtValue
     })
         .then(() => {
     snackbarboolean.value=true;
