@@ -1,3 +1,8 @@
+export const _isLiffAppNai = (_liff) => {
+    return (_liff.isInClient());
+};
+
+
 const calcRealCoatnum=(dobules_flg,player_num,coat_num) => {
     let realcoatnum = 0;
     if (dobules_flg) {

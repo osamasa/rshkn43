@@ -5,7 +5,7 @@
       density="compact"
       >
       <v-app-bar-title>乱数表君v4.2</v-app-bar-title>
-      <template v-if="isLoggedinLiff" v-slot:append>
+      <template v-if="isLoggedinLiff && isNotLiffAppNai" v-slot:append>
         <v-btn @click="logout">ログアウト</v-btn>
         <v-btn @click="logout" icon="mdi-logout"></v-btn>
       </template>
@@ -37,23 +37,28 @@
 </template>
 
 <script setup>
-  import liff from '@line/liff';
-  const { loading } = useLoading();
-  const { iserrormsg, errormsg } = useErrorMsg();
+import liff from '@line/liff';
+
+const { loading } = useLoading();
+const { iserrormsg, errormsg } = useErrorMsg();
   
-  const { userid, updateUserid, _isLoggedIn } = useUserid();
-  const { snackbartext } = useSnackBarText();
-  const { snackbarboolean }  = useStateBarBoolean();
-  const router = useRouter();  
+const { userid, updateUserid, _isLoggedIn } = useUserid();
   
-  const isLoggedinLiff = computed(()=> {
-  return _isLoggedIn()
-  });
-  const logout = () => {
+const { snackbartext } = useSnackBarText();
+const { snackbarboolean }  = useStateBarBoolean();
+const router = useRouter();  
+  
+const isLoggedinLiff = computed(()=> {
+    return _isLoggedIn()
+});
+const logout = () => {
     liff.logout();
     updateUserid('');
-    router.push('/');    
+      router.push('/');      
 };
+const isNotLiffAppNai = computed(() => ()=> {
+    return (!(_isLiffAppNai(liff)));
+});
 </script>
 
 <style lang="scss">

@@ -291,6 +291,7 @@ const errorCallback = ((err)=>{
 });    
 
 const doSubscribed = () => {
+    
     let channel1 = zeroPadding(gameid.value,10);   
     gameRecord.value = supabase.channel(channel1)
         .on('postgres_changes',
@@ -310,6 +311,7 @@ const doSubscribed = () => {
               filter: 'game_id=eq.'+gameid.value
             },
             (payload) => {
+                updateLoading(true);
                 games.value.push(payload.new);
                 games.value.sort((a,b) => a.game_no - b.game_no);
             })
@@ -320,6 +322,7 @@ const doSubscribed = () => {
               filter: 'game_id=eq.'+gameid.value
             },
             (payload) => {
+                updateLoading(true);
                 let result = games.value.filter((game) => {
                     return (game.id != payload.old.id);
                 });
@@ -341,8 +344,7 @@ const doSubscribed = () => {
                 users.value.push(payload.new);
                 users.value.sort((a,b) => a.id - b.id);
             })
-        .subscribe()
-        
+        .subscribe()        
 }
 
 const untrackPresence = async() => {
@@ -397,12 +399,22 @@ const getShoHaiText = () => {
 }
 
 const isLiffAppNai = computed(() => ()=> {
-    return (liff.isInClient());
+    return _isLiffAppNai(liff);
 });
 
 const sendLiffShareSend = () => {
     let txtValue = getShoHaiText();    
-    liff.sendMessages(txtValue.split(/\r\n/));
+    liff.sendMessages({
+        type: "text",
+        text: txtValue.split(/\r\n/)
+    })
+        .then(() => {
+    snackbarboolean.value=true;
+    snackbartext.value="送信完了"
+        })
+        .catch((err) => {
+        updateErrorMsg('[gameid.vue][ERR208]' + err);
+        })
 }
 
 const sendPickSend = () => {
