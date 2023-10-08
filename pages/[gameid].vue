@@ -413,10 +413,11 @@ const isLiffAppNai = computed(() => ()=> {
 const sendLiffShareSend = () => {
     let txtValue = getShoHaiText();    
 //    liff.sendMessages([{
-      liff.shareTargetPicker
+      liff.shareTargetPicker([{
         type: "text",
         text: txtValue
-        }],{
+      }],
+        {
             isMultiple: true,
         }        
     )
