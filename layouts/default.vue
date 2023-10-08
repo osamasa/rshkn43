@@ -5,10 +5,12 @@
       density="compact"
       >
       <v-app-bar-title>乱数表君v4.2</v-app-bar-title>
+      
       <template v-if="isLoggedinLiff" v-slot:append>
         <v-btn @click="logout">ログアウト</v-btn>
         <v-btn @click="logout" icon="mdi-logout"></v-btn>
       </template>
+
     </v-app-bar>
     <div v-if="loading" id="loading">
       <v-progress-circular indeterminate />
@@ -50,9 +52,14 @@ const router = useRouter();
   
 const isLoggedinLiff = computed(()=> {
     let ret=false;
-    if(!(liff.isInClient()))
-        if( _isLoggedIn() )
+
+
+    if( _isLoggedIn())    {
+        if(liff.isInClient()!=true) {
             ret = true;
+        }
+    }
+    
     return ret;
 });
 const logout = () => {
