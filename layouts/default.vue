@@ -5,7 +5,7 @@
       density="compact"
       >
       <v-app-bar-title>乱数表君v4.2</v-app-bar-title>
-      <template v-if="isLoggedinLiff && isNotLiffAppNai" v-slot:append>
+      <template v-if="isLoggedinLiff" v-slot:append>
         <v-btn @click="logout">ログアウト</v-btn>
         <v-btn @click="logout" icon="mdi-logout"></v-btn>
       </template>
@@ -49,16 +49,17 @@ const { snackbarboolean }  = useStateBarBoolean();
 const router = useRouter();  
   
 const isLoggedinLiff = computed(()=> {
-    return _isLoggedIn()
+    let ret=false;
+    if(!(liff.isInClient()))
+        if( _isLoggedIn() )
+            ret = true;
+    return ret;
 });
 const logout = () => {
     liff.logout();
     updateUserid('');
       router.push('/');      
 };
-const isNotLiffAppNai = computed(() => ()=> {
-    return (!(liff.isInClient()));
-});
 </script>
 
 <style lang="scss">
