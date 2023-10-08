@@ -31,7 +31,6 @@ onMounted(() => {
     liff.init({ liffId: runtimeConfig.public.liffId }, successCallback, errorCallback);
 });
 
-
 const gosetting = () => {
     if (!liff.isLoggedIn()) {
         updateLoading(true);

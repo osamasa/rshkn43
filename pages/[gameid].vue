@@ -28,15 +28,6 @@
           <v-btn @click="sendLiffShareSend()" color="success">スコアをラインに送信</v-btn>
         </div>
       </div>
-<!--      <div v-else>
-        <div class="mt-2">
-          Lineに送信したい場合は下のボタンを押してください
-        </div>
-        <div class="mt-3">
-          <v-btn @click="sendPickSend()" color="success">スコアをラインに送信</v-btn>
-        </div>
-    </div>
--->
     <div v-else>
       <div class="mt-2" >
         スコアを文字列でコピーしたい場合は下のボタンをおしてください
@@ -190,7 +181,6 @@ const doUpdateGameScore = async(d_gameid, d_score_1, d_score_2) => {
         snackbartext.value="スコア更新完了"
     }
 }
-
 
 const doUpdatePlayer = async(_gameid,_usePlayerPos,_chPlayerNo) => {
     let _rerodGameid = _gameid;
