@@ -12,7 +12,7 @@
   <div class="mt-0" v-if="vtoggle==3">
     <v-container no-gutters>
       <div>
-        お友達と一緒にスコアをつける場合、お友達にこちらのURLからアクセスしてもらってください。
+        スコアをお友達と一緒につける場合、お友達にこちらのURLからアクセスしてもらってください。
       </div>
       <div>
         <img :src=imgdata />
@@ -22,15 +22,15 @@
       </div>
       <div v-if="isLiffAppNai()">
         <div class="mt-2">
-          Lineに送信したい場合は下のボタンを押してください
+          スコア結果をLineに送信したい場合は下のボタンを押してください
         </div>
         <div class="mt-3">
-          <v-btn @click="sendLiffShareSend()" color="success">スコアをラインに送信</v-btn>
+          <v-btn @click="sendLiffShareSend()" color="success">スコア結果をラインに送信</v-btn>
         </div>
       </div>
     <div v-else>
       <div class="mt-2" >
-        スコアを文字列でコピーしたい場合は下のボタンをおしてください
+        スコア結果を文字列でコピーしたい場合は下のボタンをおしてください
       </div>
       <div class="mt-3">
         <v-btn @click="clickCopyMethod()" color="primary">スコアのコピー</v-btn>
@@ -459,7 +459,7 @@ onMounted(() => {
               errorCallback);
     updateLoading(false);
     snackbarboolean.value=true;
-    snackbartext.value="乱数表設定終了"    
+    snackbartext.value="乱数表設定終了"
 });
 </script>
 
