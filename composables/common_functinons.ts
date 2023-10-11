@@ -49,23 +49,23 @@ export const calcPlayerGameResut = (
                     }
                 } else if(Number(rec.score_1) > Number(rec.score_2)) {
                     if(gameSetting.dobules_flg) {
-                        playe_win_rec[playe_1]=playe_draw_rec[playe_1]+1;
-                        playe_win_rec[playe_2]=playe_draw_rec[playe_2]+1;
-                        playe_lose_rec[playe_3]=playe_draw_rec[playe_3]+1;
-                        playe_lose_rec[playe_4]=playe_draw_rec[playe_4]+1;
+                        playe_win_rec[playe_1]=playe_win_rec[playe_1]+1;
+                        playe_win_rec[playe_2]=playe_win_rec[playe_2]+1;
+                        playe_lose_rec[playe_3]=playe_lose_rec[playe_3]+1;
+                        playe_lose_rec[playe_4]=playe_lose_rec[playe_4]+1;
                     } else {
-                        playe_win_rec[playe_1]=playe_draw_rec[playe_1]+1;
-                        playe_lose_rec[playe_2]=playe_draw_rec[playe_2]+1;                    
+                        playe_win_rec[playe_1]=playe_win_rec[playe_1]+1;
+                        playe_lose_rec[playe_2]=playe_lose_rec[playe_2]+1;                    
                     }                
                 } else if(Number(rec.score_1) < Number(rec.score_2)) {
                     if(gameSetting.dobules_flg) {
-                        playe_lose_rec[playe_1]=playe_draw_rec[playe_1]+1;
-                        playe_lose_rec[playe_2]=playe_draw_rec[playe_2]+1;
-                        playe_win_rec[playe_3]=playe_draw_rec[playe_3]+1;
-                        playe_win_rec[playe_4]=playe_draw_rec[playe_4]+1;
+                        playe_lose_rec[playe_1]=playe_lose_rec[playe_1]+1;
+                        playe_lose_rec[playe_2]=playe_lose_rec[playe_2]+1;
+                        playe_win_rec[playe_3]=playe_win_rec[playe_3]+1;
+                        playe_win_rec[playe_4]=playe_win_rec[playe_4]+1;
                     } else {
-                        playe_lose_rec[playe_1]=playe_draw_rec[playe_1]+1;
-                        playe_win_rec[playe_2]=playe_draw_rec[playe_2]+1;                    
+                        playe_lose_rec[playe_1]=playe_lose_rec[playe_1]+1;
+                        playe_win_rec[playe_2]=playe_win_rec[playe_2]+1;                    
                     }
                 }
             }
