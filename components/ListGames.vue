@@ -59,10 +59,10 @@
     >
     <v-card>
       <v-card-title>
-        第{{ getCurShiainum() }}試合の{{ getCurUserNo() }}さんの変更
+        第{{ getCurShiainum() }}試合の {{ getCurUserNo() }} さんの変更
       </v-card-title>
       <v-card-text>
-        <v-select v-model="chPlayerNo" labele="プレイヤー番号" :items="getPlayearsList()"></v-select>
+        <v-select v-model="chPlayerNo" labele="プレイヤー番号" item-title="name" item-value="no" :items="getPlayearsList()"></v-select>
       </v-card-text>
       <v-card-actions>
 	<v-row>
@@ -98,19 +98,19 @@
       <v-card-text>
 	<v-row>
 	  <v-col>
-	    {{ d_player_1 }},{{ d_player_2 }}
+            {{ getFullUserName(d_player_1) }},{{ getFullUserName(d_player_2) }}
 	  </v-col>
 	  <v-col>&nbsp;VS&nbsp;</v-col>
 	  <v-col>
-	    {{ d_player_3 }},{{ d_player_4 }}
+	    {{ getFullUserName(d_player_3) }},{{ getFullUserName(d_player_4) }}
 	  </v-col>
 	</v-row>
 	<v-row>
 	  <v-col>
-	    <v-select density="compact" v-model="d_score_1" labele="得点" :items="[0,1,2,3,4,5,6,7,8,9,10]"></v-select>
+            <v-select density="compact" v-model="d_score_1" labele="得点" :items="[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]"></v-select>
 	  </v-col>
 	  <v-col>
-	    <v-select density="compact" v-model="d_score_2" labele="得点" :items="[0,1,2,3,4,5,6,7,8,9,10]"></v-select>
+	    <v-select density="compact" v-model="d_score_2" labele="得点" :items="[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]"></v-select>
 	  </v-col>	    
 	</v-row>	    
       </v-card-text>
@@ -165,6 +165,27 @@ const d_score_1 = ref(0);
 const d_score_2 = ref(0);
 const { loading, updateLoading} = useLoading();
 
+const _getUserName = (_player_no) => {
+    let a = props.gameUsers.find((e) => e.player_no == _player_no);
+    if(typeof a === 'object') {
+        let name = a.player_name;
+        if((typeof name === 'string') && (name !== '')) {
+            return name;
+        } else {
+            return '';
+        }
+    } else
+        return ''
+}
+
+const getFullUserName = computed(()=> (_player_no) => {
+    let _name = _getUserName(_player_no);
+    if(_name !== '') {
+        return _player_no + '(' + _name + ')'
+    } else {
+        return _player_no
+    }
+})
 const getUserName = computed(()=> (_player_no) => {
     let a = props.gameUsers.find((e) => e.player_no == _player_no);
     if(typeof a === 'object') {
@@ -178,7 +199,7 @@ const getUserName = computed(()=> (_player_no) => {
             return '';
         }
     } else
-        return ''
+        return ''    
 })
 
 const getCurColor = computed(()=>(_game_no) => {
@@ -192,7 +213,12 @@ const getCurColor = computed(()=>(_game_no) => {
 
 const getCurUserNo = computed(()=>() => {
     let pgame = props.gameList.filter((game) => {return(game.id === d_gameid.value)});
-    return pgame[0]['player_' + usePlayerPos.value];
+    let pno = pgame[0]['player_' + usePlayerPos.value];
+    if(_getUserName(pno)) {
+        return pno + ':' + _getUserName(pno);
+    } else {
+        return pno;
+    }
 });
 
 const getCurShiainum = computed(()=>() => {
@@ -201,8 +227,8 @@ const getCurShiainum = computed(()=>() => {
 });
 
 const getPlayearsList = computed(() =>() => {
-    let m=props.gameUsers.length;
-    let nplayers = [...Array(m)].map((_,i) => i + 1 );
+    // v-select で値と表記を分けたselectを渡す
+    let nplayers = props.gameUsers.map((x) => { return { no: x.player_no , name: x.player_no+':'+x.player_name }});
 
     return nplayers;
 });
