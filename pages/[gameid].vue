@@ -38,11 +38,12 @@
       </div>
     </v-container>
   </div>  
-  <v-layout class="overflow-visible" style="height: 56px;">
     <v-bottom-navigation
       v-model="vtoggle"
       active
       bg-color="blue-grey-lighten-2"
+      hide-on-scroll="true"
+      fixed="true"
       >
       <v-btn>
         <v-icon>mdi-play-circle-outline</v-icon>
@@ -61,7 +62,6 @@
         <span>共有</span>
       </v-btn>      
     </v-bottom-navigation>
-  </v-layout>
 </template>
 <script setup>
 import liff from '@line/liff';
