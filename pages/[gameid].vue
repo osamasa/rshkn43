@@ -390,7 +390,7 @@ const getShoHaiText = () => {
 
     modelValue = modelValue + "\r\n--\r\n";
     modelValue = modelValue + "乱数表君V4.2\r\n";
-    modelValue = modelValue + "https://liff.line.me/2000361330-n0YLlRAm\r\n";
+    modelValue = modelValue + "https://lin.ee/WFRf3Jj\r\n";
 
     return modelValue;
     
