@@ -5,7 +5,7 @@
         <v-select
           v-model="v_coatnum"
           label="面数"
-          :items="[1,2,3,4,5,6,7,8]"
+          :items="['1','2','3','4','5','6','7','8']"
           >        
         </v-select>
       </v-col>
@@ -15,7 +15,7 @@
         <v-select
           v-model="v_person"
           label="人数"
-          :items="[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]"
+          :items="['2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25']"
           >        
         </v-select>
       </v-col>
@@ -54,8 +54,8 @@ const { userid, updateUserid } = useUserid();
 const { updateErrorMsg } = useErrorMsg();
 const { loading, updateLoading} = useLoading();
 
-const v_coatnum = ref(1);
-const v_person = ref(6);
+const v_coatnum = ref('1');
+const v_person = ref('6');
 const v_doblesflg = ref(true);
 
 const gameName = computed(() => {
@@ -70,8 +70,8 @@ const mkgamedb = async() => {
 
     let _userid = userid.value;
     let _coat_num = v_coatnum.value;
-    let _dobules_flg = v_doblesflg.value;
-    let _person_num = v_person.value;
+    let _dobules_flg = Number(v_doblesflg.value);
+    let _person_num = Number(v_person.value);
  
     const { data, error } = await supabase
           .rpc('newmakenewgame', {
