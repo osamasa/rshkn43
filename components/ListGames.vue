@@ -68,19 +68,19 @@
 	<v-row>
 	  <v-col>
             <v-btn
-	      color="success"
-	      @click="doUpdatePlayer();dlgSecondMenu = false"
-	      >
-	      更新		
-            </v-btn>
-	  </v-col>
-	  <v-col>
-            <v-btn
 	      color="info"		
 	      variant="text"
 	      @click="dlgSecondMenu = false"
 	      >
 	      キャンセル
+            </v-btn>
+	  </v-col>        
+	  <v-col>
+            <v-btn
+	      color="success"
+	      @click="doUpdatePlayer();dlgSecondMenu = false"
+	      >
+	      更新		
             </v-btn>
 	  </v-col>
 	</v-row>
@@ -118,18 +118,18 @@
 	<v-row>
 	  <v-col>
             <v-btn
-	      color="success"
-	      @click="doUpdateGameScore();dlgThridMenu = false"
-	      >
-	      更新
-            </v-btn>
-	  </v-col>
-	  <v-col>
-            <v-btn
 	      color="info"
 	      @click="dlgThridMenu=false"
 	      >
 	      キャンセル
+            </v-btn>
+	  </v-col>        
+	  <v-col>
+            <v-btn
+	      color="success"
+	      @click="doUpdateGameScore();dlgThridMenu = false"
+	      >
+	      更新
             </v-btn>
 	  </v-col>
 	</v-row>

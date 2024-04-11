@@ -12,10 +12,10 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-btn color="success" block @click="doChange()">更新</v-btn>
-      </v-col>
-      <v-col>
         <v-btn color="info" block @click="doCancel()">キャンセル</v-btn>
+      </v-col>    
+      <v-col>
+        <v-btn color="success" block @click="doChange()">更新</v-btn>
       </v-col>
     </v-row>
   </v-container>

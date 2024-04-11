@@ -36,11 +36,11 @@
   <v-container>
     <v-row>
     <v-col>
-      <v-btn block color="success" @click="mkgamedb">作成</v-btn>
-    </v-col>
-    <v-col>
       <v-btn block color="info" @click="router.back()">戻る</v-btn>
     </v-col>
+    <v-col>
+      <v-btn block color="success" @click="mkgamedb">作成</v-btn>
+    </v-col>    
     </v-row>
   </v-container>
 </template>
