@@ -2,12 +2,12 @@
   <v-container class="pt-8">
     <v-row>
       <v-col>
-        <v-btn color="info" block @click="recover">前回の続きから</v-btn>
+        <v-btn color="success" block @click="gostart">新規で開始する</v-btn>
       </v-col>
     </v-row>
     <v-row v-if="hasHistory">
       <v-col>
-        <v-btn color="success" block @click="gostart">新規で開始する</v-btn>
+        <v-btn color="info" block @click="recover">前回の続きから</v-btn>
       </v-col>
     </v-row>
   </v-container>
